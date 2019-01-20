@@ -23,7 +23,6 @@
 #'   the subregions to include on the finished map.
 #' @keywords ISO, maps, sf
 #' @export
-#' map_visited_regions()
 map_visited_regions <- function(country, visited_places){
   
   # get sf file of map information for country

@@ -9,7 +9,7 @@ Authors@R:
 Description: These functions are used by us for a few different
     things.  To begin with, it's just functions related to making maps of
     places we visited.
-License: What license it uses
+License: GPL-3
 Imports: 
     dplyr,
     ggplot2,

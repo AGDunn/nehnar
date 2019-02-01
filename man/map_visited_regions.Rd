@@ -4,14 +4,20 @@
 \alias{map_visited_regions}
 \title{Make Map with Some Areas Obscured}
 \usage{
-map_visited_regions(country, visited_places)
+map_visited_regions(country, visited_places, label_map = TRUE,
+  uk_nations = FALSE)
 }
 \arguments{
 \item{country}{a 2-letter iso code that will be passed to ne_states().
-No defaults.}
+No default.}
 
 \item{visited_places}{any df that includes ISO_3166 as a variable listing
-the subregions to include on the finished map.}
+the subregions to include on the finished map.  No default}
+
+\item{label_map}{include a map legend? Deafult TRUE. Not yet implemented.}
+
+\item{uk_nations}{display the four main subregions of the UK (England,
+Scotland, Northern Ireland and Wales).  Default FALSE.}
 }
 \description{
 This function will return a map of a country with
@@ -19,18 +25,14 @@ only certain regions visible, based on supplying
 it a list of which regions should be shown.
 }
 \details{
-The original impetus for this function was to produce maps which would show 
-the places we'd visit within a particular country, at the level of the
-administrative subdivision.  The terminology reflects this.  Before running
-this function, you'll need a dataframe that has a variable of ISO_3166_A2 
-codes for regions.  The function will grab the map data based on the country 
-you ask for but in the next version it'll accept an existing sf shape
-instead.  It will also need more flexibility in how it takes a set of 
-subregions to include in the finished map, partly to cope with the issue of 
-subregions codings being so 'flat' in the case of the United Kingom (e.g.
-England is GB-ENG, which means if it's present and not explicitly removed,
-it won't matter what counties or cities are included.  The whole place will
-be visible.
+Originally, this function was to show the places we'd visit within a
+particular country, at the level of the administrative subdivision.  The
+terminology reflects this.  Before running this function, you'll need a
+dataframe that has a variable of ISO_3166_A2 codes for regions.  The
+function will grab the map data based on the country you ask for but in the 
+next version it'll accept an existing sf shape instead.  Can return
+`nation'-level of detail for UK but will retain their internal borders and
+make a nonsense of things if more than one country is included in the map.
 }
 \keyword{ISO,}
 \keyword{maps,}

@@ -27,7 +27,7 @@ map_visited_regions <- function(country, visited_places, add_legend = TRUE,
 
   # ZZZ add warnings block for silly argument values
   # include ref to https://en.wikipedia.org/wiki/ISO_3166-2
-  
+
   # get sf file of map information for country
   country_sf <- ne_states(
     iso_a2 = country,
@@ -51,6 +51,8 @@ map_visited_regions <- function(country, visited_places, add_legend = TRUE,
   # check whether UK nation-level map; based on that create a column,
   # check_inclusion, to filter on and another, name_of_level, for sensible text
   # in the legend.  Sets legend title to match.
+  # ZZZ there's some other countries that include countries in the geonunit
+  # column same way the UK does; Netherlands has NA for geonunit.
   if(!uk_countries){
     country_sf <- country_sf %>%
       group_by(name_en) %>%
@@ -63,21 +65,20 @@ map_visited_regions <- function(country, visited_places, add_legend = TRUE,
       group_by(name_en) %>%
       mutate(check_inclusion = gu_a3, name_of_level = geonunit) %>%
       filter(check_inclusion %in% show_these)
-      leg_title = "Counties and Local Authorities"
-  } # ZZZ consider adding a way to fill/line based on uk_countries;
-    # want to set colour = name_of_level but only when uk_countries
-    # exclude colour from the legend as well
+      leg_title = "Countries and Province"
+  } 
 
   # make the map, with colours; check whether to add legend
   if(add_legend){
     my_map <- country_sf %>%
       ggplot() + 
-        geom_sf(aes(fill = name_of_level)) +
+        geom_sf(aes(fill = name_of_level, colour = name_of_level)) +
         coord_sf(
           xlim = c(country_bbox[1], country_bbox[3]),
           ylim = c(country_bbox[2], country_bbox[4])) +
         theme_bw() +
-        scale_fill_discrete(name = leg_title)
+        scale_fill_discrete(name = leg_title) +
+        scale_colour_discrete(guide = FALSE)
   } else {
     my_map <- country_sf %>%
       ggplot() + 

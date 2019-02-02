@@ -24,7 +24,9 @@
 #' @export
 map_visited_regions <- function(country, visited_places, add_legend = TRUE,
                          uk_countries=FALSE){
-# ZZZ add warnings block for silly argument values
+
+  # ZZZ add warnings block for silly argument values
+  # include ref to https://en.wikipedia.org/wiki/ISO_3166-2
   
   # get sf file of map information for country
   country_sf <- ne_states(
@@ -62,7 +64,9 @@ map_visited_regions <- function(country, visited_places, add_legend = TRUE,
       mutate(check_inclusion = gu_a3, name_of_level = geonunit) %>%
       filter(check_inclusion %in% show_these)
       leg_title = "Counties and Local Authorities"
-  } # ZZZ consider adding a way to fill/line based on uk_countries
+  } # ZZZ consider adding a way to fill/line based on uk_countries;
+    # want to set colour = name_of_level but only when uk_countries
+    # exclude colour from the legend as well
 
   # make the map, with colours; check whether to add legend
   if(add_legend){

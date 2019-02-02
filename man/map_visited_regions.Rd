@@ -4,7 +4,7 @@
 \alias{map_visited_regions}
 \title{Make Map with Some Areas Obscured}
 \usage{
-map_visited_regions(country, visited_places, label_map = TRUE,
+map_visited_regions(country, visited_places, add_legend = TRUE,
   uk_nations = FALSE)
 }
 \arguments{
@@ -14,7 +14,7 @@ No default.}
 \item{visited_places}{any df that includes ISO_3166 as a variable listing
 the subregions to include on the finished map.  No default}
 
-\item{label_map}{include a map legend? Deafult TRUE. Not yet implemented.}
+\item{add_legend}{include a map legend? Deafult TRUE. Not yet implemented.}
 
 \item{uk_nations}{display the four main subregions of the UK (England,
 Scotland, Northern Ireland and Wales).  Default FALSE.}

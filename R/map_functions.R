@@ -45,27 +45,27 @@ map_visited_regions <- function(country, visited_places, add_legend = TRUE,
   # take the vector of places which have been visited
   show_these <- visited_places %>% pull(ISO_3166)
   
-  # add column, check_inclusion, that holds nation- or county-level ID,
-  # depending on uk_nations TRUE/FALSE.  Filter mapping data based on this
-  # column.
+  # check whether UK nation-level map; based on that create a column,
+  # check_inclusion, to filter on and another, name_of_level, for sensible text
+  # in the legend
   if(!uk_nations){
     country_sf <- country_sf %>%
       group_by(name_en) %>%
-      mutate(check_inclusion = iso_3166_2) %>%
+      mutate(check_inclusion = iso_3166_2, name_of_level = name) %>%
       filter(check_inclusion %in% show_these)
   } else {
     show_these <- str_replace_all(show_these, "GB-", "")
     country_sf <- country_sf %>%
       group_by(name_en) %>%
-      mutate(check_inclusion = gu_a3) %>%
+      mutate(check_inclusion = gu_a3, name_of_level = geonunit) %>%
       filter(check_inclusion %in% show_these)
-  }
+  } # ZZZ consider adding a way to fill/line based on uk_nations
 
   # make the map, with colours; check whether to add legend
   if(add_legend){
     my_map <- country_sf %>%
       ggplot() + 
-        geom_sf(aes(fill = name)) +
+        geom_sf(aes(fill = name_of_level)) +
         coord_sf(
           xlim = c(country_bbox[1], country_bbox[3]),
           ylim = c(country_bbox[2], country_bbox[4])) +
@@ -73,7 +73,7 @@ map_visited_regions <- function(country, visited_places, add_legend = TRUE,
   } else {
     my_map <- country_sf %>%
       ggplot() + 
-        geom_sf(aes(fill = name), show.legend = FALSE) +
+        geom_sf(aes(fill = name_of_level), show.legend = FALSE) +
         coord_sf(
           xlim = c(country_bbox[1], country_bbox[3]),
           ylim = c(country_bbox[2], country_bbox[4])) +

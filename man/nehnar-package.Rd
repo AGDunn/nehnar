@@ -4,7 +4,7 @@
 \name{nehnar-package}
 \alias{nehnar}
 \alias{nehnar-package}
-\title{nehnar: Nehnar: a Bag of Functions We Use}
+\title{nehnar: a Bag of Functions We Use}
 \description{
 These functions are used by us for a few different
     things.  To begin with, it's just functions related to making maps of

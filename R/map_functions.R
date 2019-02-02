@@ -17,12 +17,12 @@
 #'   No default.
 #' @param visited_places any df that includes ISO_3166 as a variable listing
 #'   the subregions to include on the finished map.  No default
-#' @param label_map include a map legend? Deafult TRUE. Not yet implemented.
+#' @param add_legend include a map legend? Deafult TRUE. Not yet implemented.
 #' @param uk_nations display the four main subregions of the UK (England,
 #'   Scotland, Northern Ireland and Wales).  Default FALSE.
 #' @keywords ISO, maps, sf
 #' @export
-map_visited_regions <- function(country, visited_places, label_map = TRUE,
+map_visited_regions <- function(country, visited_places, add_legend = TRUE,
                          uk_nations=FALSE){
   
   # get sf file of map information for country
@@ -61,19 +61,24 @@ map_visited_regions <- function(country, visited_places, label_map = TRUE,
       filter(check_inclusion %in% show_these)
   }
 
-  # make the map
-  my_map <- country_sf %>%
-    ggplot() + 
-      geom_sf() +
-      coord_sf(
-        xlim = c(country_bbox[1], country_bbox[3]),
-        ylim = c(country_bbox[2], country_bbox[4])) +
-      theme_bw()
-
-# add legend if requested ZZZ
-# if(label_map){
-#   my_map <- my_map
-# }
+  # make the map, with colours; check whether to add legend
+  if(add_legend){
+    my_map <- country_sf %>%
+      ggplot() + 
+        geom_sf(aes(fill = name)) +
+        coord_sf(
+          xlim = c(country_bbox[1], country_bbox[3]),
+          ylim = c(country_bbox[2], country_bbox[4])) +
+        theme_bw()
+  } else {
+    my_map <- country_sf %>%
+      ggplot() + 
+        geom_sf(aes(fill = name), show.legend = FALSE) +
+        coord_sf(
+          xlim = c(country_bbox[1], country_bbox[3]),
+          ylim = c(country_bbox[2], country_bbox[4])) +
+        theme_bw()
+  }
 
   return(my_map)
 }

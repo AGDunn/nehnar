@@ -17,13 +17,16 @@
 #'   No default.
 #' @param visited_places any df that includes ISO_3166 as a variable listing
 #'   the subregions to include on the finished map.  No default.
-#' @param add_legend include a map legend? Default TRUE.
-#' @param uk_countries display the four main subregions of the UK (England,
-#'   Scotland, Northern Ireland and Wales).  Default FALSE.
+#' @param show_unvisited boolean; show unvisited places instead of visited ones
+#'   default FALSE.
+#' @param add_legend boolean; include a map legend. Default TRUE.
+#' @param uk_countries boolean; display the four main subregions of the UK
+#'   (England, Scotland, Northern Ireland and Wales).  Default FALSE.
 #' @keywords ISO, maps, sf
 #' @export
-map_visited_regions <- function(country, visited_places, add_legend = TRUE,
-                         uk_countries=FALSE){
+map_visited_regions <- function(country, visited_places,
+                          show_unvisited = FALSE,
+                          add_legend = TRUE, uk_countries=FALSE){
 
   # ZZZ add warnings block for silly argument values
   # include ref to https://en.wikipedia.org/wiki/ISO_3166-2
@@ -48,25 +51,36 @@ map_visited_regions <- function(country, visited_places, add_legend = TRUE,
   # take the vector of places which have been visited
   show_these <- visited_places %>% pull(ISO_3166)
   
-  # check whether UK nation-level map; based on that create a column,
-  # check_inclusion, to filter on and another, name_of_level, for sensible text
-  # in the legend.  Sets legend title to match.
+  # based on uk_countries, determine which variable will be copied into
+  # check_inclusion, which will be used to filter map contents.  Also create
+  # names and title for legend based on uk_countries.
   # ZZZ there's some other countries that include countries in the geonunit
   # column same way the UK does; Netherlands has NA for geonunit.
   if(!uk_countries){
     country_sf <- country_sf %>%
       group_by(name_en) %>%
-      mutate(check_inclusion = iso_3166_2, name_of_level = name) %>%
-      filter(check_inclusion %in% show_these)
+      mutate(check_inclusion = iso_3166_2, name_of_level = name)
       leg_title = "UK Countries and Province"
   } else {
     show_these <- str_replace_all(show_these, "GB-", "")
     country_sf <- country_sf %>%
       group_by(name_en) %>%
-      mutate(check_inclusion = gu_a3, name_of_level = geonunit) %>%
-      filter(check_inclusion %in% show_these)
+      mutate(check_inclusion = gu_a3, name_of_level = geonunit)
       leg_title = "Countries and Province"
   } 
+
+
+  # check whether show_unvisited == TRUE; will then exclude either the visited
+  # or the unvisited regions from the map.  Does this by comparison of
+  # check_inclusion against show_these.
+  if(!show_unvisited){
+    country_sf <- country_sf %>%
+      filter(check_inclusion %in% show_these)
+  } else {
+    country_sf <- country_sf %>%
+      filter(!check_inclusion %in% show_these)
+  } # ZZZ this needs to influence the map title
+    # ZZZ also add a filter for London places
 
   # make the map, with colours; check whether to add legend
   if(add_legend){
@@ -82,7 +96,8 @@ map_visited_regions <- function(country, visited_places, add_legend = TRUE,
   } else {
     my_map <- country_sf %>%
       ggplot() + 
-        geom_sf(aes(fill = name_of_level), show.legend = FALSE) +
+        geom_sf(aes(fill = name_of_level, colour = name_of_level), 
+          show.legend = FALSE) +
         coord_sf(
           xlim = c(country_bbox[1], country_bbox[3]),
           ylim = c(country_bbox[2], country_bbox[4])) +

@@ -4,8 +4,8 @@
 \alias{map_visited_regions}
 \title{Make Map with Some Areas Obscured}
 \usage{
-map_visited_regions(country, visited_places, add_legend = TRUE,
-  uk_countries = FALSE)
+map_visited_regions(country, visited_places, show_unvisited = FALSE,
+  add_legend = TRUE, uk_countries = FALSE)
 }
 \arguments{
 \item{country}{a 2-letter ISO code that will be passed to ne_states().
@@ -14,10 +14,13 @@ No default.}
 \item{visited_places}{any df that includes ISO_3166 as a variable listing
 the subregions to include on the finished map.  No default.}
 
-\item{add_legend}{include a map legend? Default TRUE.}
+\item{show_unvisited}{boolean; show unvisited places instead of visited ones
+default FALSE.}
 
-\item{uk_countries}{display the four main subregions of the UK (England,
-Scotland, Northern Ireland and Wales).  Default FALSE.}
+\item{add_legend}{boolean; include a map legend. Default TRUE.}
+
+\item{uk_countries}{boolean; display the four main subregions of the UK
+(England, Scotland, Northern Ireland and Wales).  Default FALSE.}
 }
 \description{
 This function will return a map of a country with

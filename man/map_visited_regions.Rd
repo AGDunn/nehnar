@@ -5,18 +5,18 @@
 \title{Make Map with Some Areas Obscured}
 \usage{
 map_visited_regions(country, visited_places, add_legend = TRUE,
-  uk_nations = FALSE)
+  uk_countries = FALSE)
 }
 \arguments{
-\item{country}{a 2-letter iso code that will be passed to ne_states().
+\item{country}{a 2-letter ISO code that will be passed to ne_states().
 No default.}
 
 \item{visited_places}{any df that includes ISO_3166 as a variable listing
-the subregions to include on the finished map.  No default}
+the subregions to include on the finished map.  No default.}
 
-\item{add_legend}{include a map legend? Deafult TRUE. Not yet implemented.}
+\item{add_legend}{include a map legend? Default TRUE.}
 
-\item{uk_nations}{display the four main subregions of the UK (England,
+\item{uk_countries}{display the four main subregions of the UK (England,
 Scotland, Northern Ireland and Wales).  Default FALSE.}
 }
 \description{

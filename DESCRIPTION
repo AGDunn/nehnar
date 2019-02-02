@@ -1,5 +1,5 @@
 Package: nehnar
-Title: Nehnar: a Bag of Functions We Use
+Title: a Bag of Functions We Use
 Version: 0.1
 Authors@R: 
     person(given = "Adam George",

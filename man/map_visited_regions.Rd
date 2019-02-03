@@ -5,7 +5,7 @@
 \title{Make Map with Some Areas Obscured}
 \usage{
 map_visited_regions(country, visited_places, show_unvisited = FALSE,
-  add_legend = TRUE, uk_countries = FALSE)
+  group_London = TRUE, add_legend = TRUE, uk_countries = FALSE)
 }
 \arguments{
 \item{country}{a 2-letter ISO code that will be passed to ne_states().
@@ -16,6 +16,9 @@ the subregions to include on the finished map.  No default.}
 
 \item{show_unvisited}{boolean; show unvisited places instead of visited ones
 default FALSE.}
+
+\item{group_London}{boolean; unite all London boroughs and the City into one
+map unit called `London'.  Default TRUE.}
 
 \item{add_legend}{boolean; include a map legend. Default TRUE.}
 

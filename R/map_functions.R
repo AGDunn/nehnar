@@ -19,17 +19,24 @@
 #'   the subregions to include on the finished map.  No default.
 #' @param show_unvisited boolean; show unvisited places instead of visited ones
 #'   default FALSE.
+#' @param group_London boolean; unite all London boroughs and the City into one
+#'   map unit called `London'.  Default TRUE.
 #' @param add_legend boolean; include a map legend. Default TRUE.
 #' @param uk_countries boolean; display the four main subregions of the UK
 #'   (England, Scotland, Northern Ireland and Wales).  Default FALSE.
 #' @keywords ISO, maps, sf
 #' @export
 map_visited_regions <- function(country, visited_places,
-                          show_unvisited = FALSE,
-                          add_legend = TRUE, uk_countries=FALSE){
+                          show_unvisited = FALSE, group_London = TRUE,
+                          add_legend = TRUE, uk_countries = FALSE){
 
-  # ZZZ add warnings block for silly argument values
+# ZZZ: stuff to do block ------------------------------------------------------
+  # add warnings block for silly argument values
   # include ref to https://en.wikipedia.org/wiki/ISO_3166-2
+  # London-only map option
+  # add something to tie presence/absence of borders to uk_countries
+  # the show_unvisited variable should influence plot title
+# -----------------------------------------------------------------------------
 
   # get sf file of map information for country
   country_sf <- ne_states(
@@ -53,20 +60,28 @@ map_visited_regions <- function(country, visited_places,
   
   # based on uk_countries, determine which variable will be copied into
   # check_inclusion, which will be used to filter map contents.  Also create
-  # names and title for legend based on uk_countries.
-  # ZZZ there's some other countries that include countries in the geonunit
-  # column same way the UK does; Netherlands has NA for geonunit.
+  # names and title for legend to match uk_countries option.  
   if(!uk_countries){
+    if(group_London){
+      country_sf <- country_sf %>%
+        mutate(name = case_when(
+          type == "City Corporation" ~ "London",
+          type == "London Borough" ~ "London",
+          type == "London Borough (royal)" ~ "London",
+          type == "London Borough (city)" ~ "London",
+          TRUE ~ as.character(name)
+        ))
+    }
     country_sf <- country_sf %>%
-      group_by(name_en) %>%
+      group_by(name) %>%
       mutate(check_inclusion = iso_3166_2, name_of_level = name)
-      leg_title = "UK Countries and Province"
+      leg_title = ""
   } else {
     show_these <- str_replace_all(show_these, "GB-", "")
     country_sf <- country_sf %>%
-      group_by(name_en) %>%
+      group_by(name) %>%
       mutate(check_inclusion = gu_a3, name_of_level = geonunit)
-      leg_title = "Countries and Province"
+      leg_title = "UK countries and province"
   } 
 
 
@@ -79,8 +94,7 @@ map_visited_regions <- function(country, visited_places,
   } else {
     country_sf <- country_sf %>%
       filter(!check_inclusion %in% show_these)
-  } # ZZZ this needs to influence the map title
-    # ZZZ also add a filter for London places
+  } 
 
   # make the map, with colours; check whether to add legend
   if(add_legend){
@@ -101,8 +115,7 @@ map_visited_regions <- function(country, visited_places,
         coord_sf(
           xlim = c(country_bbox[1], country_bbox[3]),
           ylim = c(country_bbox[2], country_bbox[4])) +
-        theme_bw() +
-        scale_fill_discrete(name = leg_title)
+        theme_bw()
   }
 
   return(my_map)

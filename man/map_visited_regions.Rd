@@ -5,7 +5,8 @@
 \title{Make Map with Some Areas Obscured}
 \usage{
 map_visited_regions(country, visited_places, show_unvisited = FALSE,
-  group_London = TRUE, add_legend = TRUE, uk_countries = FALSE)
+  group_London = TRUE, add_legend = TRUE, uk_countries = FALSE,
+  just_London = FALSE)
 }
 \arguments{
 \item{country}{a 2-letter ISO code that will be passed to ne_states().
@@ -24,6 +25,10 @@ map unit called `London'.  Default TRUE.}
 
 \item{uk_countries}{boolean; display the four main subregions of the UK
 (England, Scotland, Northern Ireland and Wales).  Default FALSE.}
+
+\item{just_London}{boolean; produce a zoomed-in map of the UK capital.  If
+true, overrides uk_countries and group_London, setting both to FALSE.
+Default FALSE.}
 }
 \description{
 This function will return a map of a country with

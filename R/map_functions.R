@@ -24,16 +24,19 @@
 #' @param add_legend boolean; include a map legend. Default TRUE.
 #' @param uk_countries boolean; display the four main subregions of the UK
 #'   (England, Scotland, Northern Ireland and Wales).  Default FALSE.
+#' @param just_London boolean; produce a zoomed-in map of the UK capital.  If
+#'   true, overrides uk_countries and group_London, setting both to FALSE.
+#'   Default FALSE.
 #' @keywords ISO, maps, sf
 #' @export
 map_visited_regions <- function(country, visited_places,
                           show_unvisited = FALSE, group_London = TRUE,
-                          add_legend = TRUE, uk_countries = FALSE){
+                          add_legend = TRUE, uk_countries = FALSE,
+                          just_London = FALSE){
 
 # ZZZ: stuff to do block ------------------------------------------------------
   # add warnings block for silly argument values
   # include ref to https://en.wikipedia.org/wiki/ISO_3166-2
-  # London-only map option
   # add something to tie presence/absence of borders to uk_countries
   # the show_unvisited variable should influence plot title
 # -----------------------------------------------------------------------------
@@ -43,9 +46,25 @@ map_visited_regions <- function(country, visited_places,
     iso_a2 = country,
     returnclass = "sf")
   
-  # set bounding box for map to include full landmass of all countries
-  # included in function call.
-  country_bbox <- st_bbox(country_sf)
+  # check if London-only map requested.  If not, make bounding box for map.  If
+  # so, make London-based bounding box and set both group_London and
+  # uk_countries to FALSE.
+  
+  if(!just_London){
+    full_bbox <- st_bbox(country_sf)
+  } else {
+    group_London = FALSE
+    uk_countries = FALSE
+    full_bbox <- st_bbox(country_sf %>%
+      group_by(name) %>%
+      filter(
+          type == "City Corporation" |
+          type == "London Borough" |
+          type == "London Borough (royal)" |
+          type == "London Borough (city)" 
+      )
+    )
+  }
   
   # convert ISO column from factor to character if necessary
   if(is.factor(visited_places)){
@@ -76,6 +95,15 @@ map_visited_regions <- function(country, visited_places,
       group_by(name) %>%
       mutate(check_inclusion = iso_3166_2, name_of_level = name)
       leg_title = ""
+    if(just_London){
+      country_sf <- country_sf %>%
+        filter(
+            type == "City Corporation" |
+            type == "London Borough" |
+            type == "London Borough (royal)" |
+            type == "London Borough (city)" 
+        )
+    }
   } else {
     show_these <- str_replace_all(show_these, "GB-", "")
     country_sf <- country_sf %>%
@@ -102,8 +130,8 @@ map_visited_regions <- function(country, visited_places,
       ggplot() + 
         geom_sf(aes(fill = name_of_level, colour = name_of_level)) +
         coord_sf(
-          xlim = c(country_bbox[1], country_bbox[3]),
-          ylim = c(country_bbox[2], country_bbox[4])) +
+          xlim = c(full_bbox[1], full_bbox[3]),
+          ylim = c(full_bbox[2], full_bbox[4])) +
         theme_bw() +
         scale_fill_discrete(name = leg_title) +
         scale_colour_discrete(guide = FALSE)
@@ -113,8 +141,8 @@ map_visited_regions <- function(country, visited_places,
         geom_sf(aes(fill = name_of_level, colour = name_of_level), 
           show.legend = FALSE) +
         coord_sf(
-          xlim = c(country_bbox[1], country_bbox[3]),
-          ylim = c(country_bbox[2], country_bbox[4])) +
+          xlim = c(full_bbox[1], full_bbox[3]),
+          ylim = c(full_bbox[2], full_bbox[4])) +
         theme_bw()
   }
 

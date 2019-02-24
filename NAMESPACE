@@ -3,6 +3,7 @@
 export(map_visited_regions)
 import(dplyr)
 import(ggplot2)
+import(rgeos)
 import(sf)
 import(stringr)
 importFrom(rnaturalearth,ne_states)

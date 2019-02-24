@@ -14,6 +14,7 @@ Imports:
     dplyr,
     ggplot2,
     rnaturalearth,
+    rgeos,
     sf,
     stringr
 Encoding: UTF-8

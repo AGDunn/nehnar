@@ -29,6 +29,7 @@
 #'   Default FALSE.
 #' @keywords ISO, maps, sf
 #' @import sf
+#' @import rgeos
 #' @import ggplot2
 #' @import dplyr
 #' @importFrom rnaturalearth ne_states

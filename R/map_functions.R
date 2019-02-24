@@ -31,9 +31,11 @@
 #' @import sf
 #' @import rgeos
 #' @import ggplot2
-#' @import dplyr
+#' @importFrom dplyr group_by
+#' @importFrom dplyr filter
+#' @importFrom dplyr mutate
 #' @importFrom rnaturalearth ne_states
-#' @import stringr
+#' @importFrom stringr str_replace_all
 #' @export
 map_visited_regions <- function(country, visited_places,
                           show_unvisited = FALSE, group_London = TRUE,
@@ -100,7 +102,7 @@ map_visited_regions <- function(country, visited_places,
     country_sf <- country_sf %>%
       group_by(name) %>%
       mutate(check_inclusion = iso_3166_2, name_of_level = name)
-      leg_title = ""
+      leg_title <- ""
     if(just_London){
       country_sf <- country_sf %>%
         filter(
@@ -115,7 +117,7 @@ map_visited_regions <- function(country, visited_places,
     country_sf <- country_sf %>%
       group_by(name) %>%
       mutate(check_inclusion = gu_a3, name_of_level = geonunit)
-      leg_title = "UK countries and province"
+      leg_title <- "UK countries and province"
   } 
 
 

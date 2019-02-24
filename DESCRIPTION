@@ -13,8 +13,8 @@ License: GPL-3
 Imports: 
     dplyr,
     ggplot2,
-    rnaturalearth,
     rgeos,
+    rnaturalearth,
     sf,
     stringr
 Encoding: UTF-8

@@ -28,6 +28,10 @@
 #'   true, overrides uk_countries and group_London, setting both to FALSE.
 #'   Default FALSE.
 #' @keywords ISO, maps, sf
+#' @import ggplot2
+#' @import dplyr
+#' @importFrom rnaturalearth ne_states
+#' @import stringr
 #' @export
 map_visited_regions <- function(country, visited_places,
                           show_unvisited = FALSE, group_London = TRUE,

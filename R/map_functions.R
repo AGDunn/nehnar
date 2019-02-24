@@ -28,6 +28,7 @@
 #'   true, overrides uk_countries and group_London, setting both to FALSE.
 #'   Default FALSE.
 #' @keywords ISO, maps, sf
+#' @import sf
 #' @import ggplot2
 #' @import dplyr
 #' @importFrom rnaturalearth ne_states

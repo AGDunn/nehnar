@@ -9,9 +9,6 @@ map_visited_regions(country, visited_places, show_unvisited = FALSE,
   just_London = FALSE)
 }
 \arguments{
-\item{country}{a 2-letter ISO code that will be passed to ne_states().
-No default.}
-
 \item{visited_places}{any df that includes ISO_3166 as a variable listing
 the subregions to include on the finished map.  No default.}
 
@@ -29,6 +26,9 @@ map unit called `London'.  Default TRUE.}
 \item{just_London}{boolean; produce a zoomed-in map of the UK capital.  If
 true, overrides uk_countries and group_London, setting both to FALSE.
 Default FALSE.}
+
+\item{countries}{a vector of 2-letter ISO codes that will be passed to
+ne_states().  No default.}
 }
 \description{
 This function will return a map of a country with

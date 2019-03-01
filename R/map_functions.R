@@ -13,8 +13,8 @@
 #' `nation'-level of detail for UK but will retain their internal borders and
 #' make a nonsense of things if more than one country is included in the map.
 #' 
-#' @param country a 2-letter ISO code that will be passed to ne_states().
-#'   No default.
+#' @param countries a vector of 2-letter ISO codes that will be passed to
+#'   ne_states().  No default.
 #' @param visited_places any df that includes ISO_3166 as a variable listing
 #'   the subregions to include on the finished map.  No default.
 #' @param show_unvisited boolean; show unvisited places instead of visited ones
@@ -37,7 +37,7 @@
 #' @importFrom rnaturalearth ne_states
 #' @importFrom stringr str_replace_all
 #' @export
-map_visited_regions <- function(country, visited_places,
+map_visited_regions <- function(countries, visited_places,
                           show_unvisited = FALSE, group_London = TRUE,
                           add_legend = TRUE, uk_countries = FALSE,
                           just_London = FALSE){
@@ -51,7 +51,7 @@ map_visited_regions <- function(country, visited_places,
 
   # get sf file of map information for country
   country_sf <- ne_states(
-    iso_a2 = country,
+    iso_a2 = countries,
     returnclass = "sf")
   
   # check if London-only map requested.  If not, make bounding box for map.  If

@@ -14,7 +14,7 @@
 #' make a nonsense of things if more than one country is included in the map.
 #' 
 #' @param countries a vector of 2-letter ISO codes that will be passed to
-#'   ne_states().  No default.
+#'   ne_states().  Default NULL.
 #' @param visited_places any df that includes ISO_3166 as a variable listing
 #'   the subregions to include on the finished map.  No default.
 #' @param show_unvisited boolean; show unvisited places instead of visited ones
@@ -37,16 +37,21 @@
 #' @importFrom rnaturalearth ne_states
 #' @importFrom stringr str_replace_all
 #' @export
-map_visited_regions <- function(countries, visited_places,
-                          show_unvisited = FALSE, group_London = TRUE,
-                          add_legend = TRUE, uk_countries = FALSE,
-                          just_London = FALSE){
+map_visited_regions <- function(countries = NULL, visited_places,
+                                show_unvisited = FALSE, group_London = TRUE,
+                                add_legend = TRUE, uk_countries = FALSE,
+                                just_London = FALSE){
 
 # ZZZ: stuff to do block ------------------------------------------------------
   # add warnings block for silly argument values
   # include ref to https://en.wikipedia.org/wiki/ISO_3166-2
   # add something to tie presence/absence of borders to uk_countries
   # the show_unvisited variable should influence plot title
+  # if some of the 2-letter codes aren't in the data it will still run without
+  # complaint as long as at least one is.
+  # convert visited_places into vector rather than df-holding-vector
+  # add auto-countries if countries = NULL.
+  # add language-of-labels choice?
 # -----------------------------------------------------------------------------
 
   # get sf file of map information for country

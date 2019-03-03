@@ -31,6 +31,7 @@
 #' @import sf
 #' @import rgeos
 #' @import ggplot2
+#' @importFrom dplyr case_when
 #' @importFrom dplyr group_by
 #' @importFrom dplyr filter
 #' @importFrom dplyr mutate

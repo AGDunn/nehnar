@@ -15,8 +15,8 @@
 #' 
 #' @param countries a vector of 2-letter ISO codes that will be passed to
 #'   ne_states().  Default NULL.
-#' @param visited_places any df that includes ISO_3166 as a variable listing
-#'   the subregions to include on the finished map.  No default.
+#' @param visited_places a vector of ISO_3166 values (2-letter country code
+#'   followed by a dash then a 3-letter region code).  Default NULL.
 #' @param show_unvisited boolean; show unvisited places instead of visited ones
 #'   default FALSE.
 #' @param group_London boolean; unite all London boroughs and the City into one
@@ -37,7 +37,7 @@
 #' @importFrom rnaturalearth ne_states
 #' @importFrom stringr str_replace_all
 #' @export
-map_visited_regions <- function(countries = NULL, visited_places,
+map_visited_regions <- function(countries = NULL, visited_places = NULL,
                                 show_unvisited = FALSE, group_London = TRUE,
                                 add_legend = TRUE, uk_countries = FALSE,
                                 just_London = FALSE){
@@ -49,7 +49,6 @@ map_visited_regions <- function(countries = NULL, visited_places,
   # the show_unvisited variable should influence plot title
   # if some of the 2-letter codes aren't in the data it will still run without
   # complaint as long as at least one is.
-  # convert visited_places into vector rather than df-holding-vector
   # add auto-countries if countries = NULL.
   # add language-of-labels choice?
 # -----------------------------------------------------------------------------
@@ -81,14 +80,17 @@ map_visited_regions <- function(countries = NULL, visited_places,
   
   # convert ISO column from factor to character if necessary
   if(is.factor(visited_places)){
-    visited_places$ISO_3166 <- as.character(visited_places$ISO_3166)
+    visited_places <- as.character(visited_places)
   }
 
   # strip out any whitespace in the ISO column
-  visited_places$ISO_3166 <- str_replace_all(visited_places$ISO_3166, " ", "")
+  visited_places <- str_replace_all(visited_places, " ", "")
 
   # take the vector of places which have been visited
-  show_these <- visited_places %>% pull(ISO_3166)
+  # this step is from when visited_places was a vector, so it's not really
+  # needed now---unless we're going to make the show-or-don't-show decision
+  # this way.
+  show_these <- visited_places 
   
   # based on uk_countries, determine which variable will be copied into
   # check_inclusion, which will be used to filter map contents.  Also create

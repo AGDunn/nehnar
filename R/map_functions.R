@@ -12,6 +12,8 @@
 #' next version it'll accept an existing sf shape instead.  Can return
 #' `nation'-level of detail for UK but will retain their internal borders and
 #' make a nonsense of things if more than one country is included in the map.
+#' Uses plotly in the return of the map to allow tooltips and an easier-reading
+#' map.
 #' 
 #' @param countries a vector of 2-letter ISO codes that will be passed to
 #'   ne_states().  Default NULL.
@@ -35,6 +37,7 @@
 #' @importFrom dplyr group_by
 #' @importFrom dplyr filter
 #' @importFrom dplyr mutate
+#' @importFrom plotly ggplotly
 #' @importFrom rnaturalearth ne_states
 #' @importFrom stringr str_replace_all
 #' @export
@@ -146,24 +149,26 @@ map_visited_regions <- function(countries = NULL, visited_places = NULL,
 
   # make the map, with colours; check whether to add legend
   if(add_legend){
-    my_map <- country_sf %>%
-      ggplot() + 
-        geom_sf(aes(fill = name_of_level, colour = name_of_level)) +
-        coord_sf(
-          xlim = c(full_bbox[1], full_bbox[3]),
-          ylim = c(full_bbox[2], full_bbox[4])) +
-        theme_bw() +
-        scale_fill_discrete(name = leg_title) +
-        scale_colour_discrete(guide = FALSE)
+    my_map <- ggplotly(country_sf %>%
+        ggplot() + 
+          geom_sf(aes(fill = name_of_level, colour = name_of_level)) +
+          coord_sf(
+            xlim = c(full_bbox[1], full_bbox[3]),
+            ylim = c(full_bbox[2], full_bbox[4])) +
+          theme_bw() +
+          scale_fill_discrete(name = leg_title) +
+          scale_colour_discrete(guide = FALSE)
+      )
   } else {
-    my_map <- country_sf %>%
-      ggplot() + 
-        geom_sf(aes(fill = name_of_level, colour = name_of_level), 
-          show.legend = FALSE) +
-        coord_sf(
-          xlim = c(full_bbox[1], full_bbox[3]),
-          ylim = c(full_bbox[2], full_bbox[4])) +
-        theme_bw()
+    my_map <- ggplotly(country_sf %>%
+        ggplot() + 
+          geom_sf(aes(fill = name_of_level, colour = name_of_level), 
+            show.legend = FALSE) +
+          coord_sf(
+            xlim = c(full_bbox[1], full_bbox[3]),
+            ylim = c(full_bbox[2], full_bbox[4])) +
+          theme_bw()
+      )
   }
 
   return(my_map)

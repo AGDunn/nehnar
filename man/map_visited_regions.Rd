@@ -44,6 +44,8 @@ function will grab the map data based on the country you ask for but in the
 next version it'll accept an existing sf shape instead.  Can return
 `nation'-level of detail for UK but will retain their internal borders and
 make a nonsense of things if more than one country is included in the map.
+Uses plotly in the return of the map to allow tooltips and an easier-reading
+map.
 }
 \keyword{ISO,}
 \keyword{maps,}

@@ -4,16 +4,17 @@
 \alias{map_visited_regions}
 \title{Make Map with Some Areas Obscured}
 \usage{
-map_visited_regions(countries = NULL, visited_places = NULL,
+map_visited_regions(visited_places = NULL, countries = "everywhere",
   show_unvisited = FALSE, group_London = TRUE, add_legend = TRUE,
   uk_countries = FALSE, just_London = FALSE)
 }
 \arguments{
-\item{countries}{a vector of 2-letter ISO codes that will be passed to
-ne_states().  Default NULL.}
-
 \item{visited_places}{a vector of ISO_3166 values (2-letter country code
 followed by a dash then a 3-letter region code).  Default NULL.}
+
+\item{countries}{a vector of 2-letter ISO codes that will be passed to
+ne_states().  Default, "everywhere", will try to generate the list of
+2-letter ISO codes based on the vector passed to visited_places.}
 
 \item{show_unvisited}{boolean; show unvisited places instead of visited ones
 default FALSE.}

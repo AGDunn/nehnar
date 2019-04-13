@@ -15,10 +15,11 @@
 #' Uses plotly in the return of the map to allow tooltips and an easier-reading
 #' map.
 #' 
-#' @param countries a vector of 2-letter ISO codes that will be passed to
-#'   ne_states().  Default NULL.
 #' @param visited_places a vector of ISO_3166 values (2-letter country code
 #'   followed by a dash then a 3-letter region code).  Default NULL.
+#' @param countries a vector of 2-letter ISO codes that will be passed to
+#'   ne_states().  Default, "everywhere", will try to generate the list of
+#'   2-letter ISO codes based on the vector passed to visited_places.
 #' @param show_unvisited boolean; show unvisited places instead of visited ones
 #'   default FALSE.
 #' @param group_London boolean; unite all London boroughs and the City into one
@@ -40,8 +41,11 @@
 #' @importFrom plotly ggplotly
 #' @importFrom rnaturalearth ne_states
 #' @importFrom stringr str_replace_all
+#' @importFrom stringr str_split
+#' @importFrom stringr str_to_lower
 #' @export
-map_visited_regions <- function(countries = NULL, visited_places = NULL,
+map_visited_regions <- function(visited_places = NULL,
+                                countries = "everywhere", 
                                 show_unvisited = FALSE, group_London = TRUE,
                                 add_legend = TRUE, uk_countries = FALSE,
                                 just_London = FALSE){
@@ -60,6 +64,27 @@ map_visited_regions <- function(countries = NULL, visited_places = NULL,
   #   France.
   # add language-of-labels choice?
 # -----------------------------------------------------------------------------
+
+  # convert ISO column from factor to character if necessary
+  if(is.factor(visited_places)){
+    visited_places <- as.character(visited_places)
+  }
+
+  # strip out any whitespace in the ISO column
+  visited_places <- str_replace_all(visited_places, " ", "")
+
+  # take the vector of places which have been visited
+  # this step is from when visited_places was a vector, so it's not really
+  # needed now---unless we're going to make the show-or-don't-show decision
+  # this way.
+  show_these <- visited_places 
+
+  # try to guess countries list if none explicitly supplied
+  if (countries == "everywhere") {
+    countries <- unique(tolower(
+      str_split(visited_places, pattern = "-", simplify = TRUE)[, 1]
+    ))
+  }
 
   # get sf file of map information for country
   country_sf <- ne_states(
@@ -86,19 +111,6 @@ map_visited_regions <- function(countries = NULL, visited_places = NULL,
     )
   }
   
-  # convert ISO column from factor to character if necessary
-  if(is.factor(visited_places)){
-    visited_places <- as.character(visited_places)
-  }
-
-  # strip out any whitespace in the ISO column
-  visited_places <- str_replace_all(visited_places, " ", "")
-
-  # take the vector of places which have been visited
-  # this step is from when visited_places was a vector, so it's not really
-  # needed now---unless we're going to make the show-or-don't-show decision
-  # this way.
-  show_these <- visited_places 
   
   # based on uk_countries, determine which variable will be copied into
   # check_inclusion, which will be used to filter map contents.  Also create

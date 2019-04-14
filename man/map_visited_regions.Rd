@@ -2,7 +2,7 @@
 % Please edit documentation in R/map_functions.R
 \name{map_visited_regions}
 \alias{map_visited_regions}
-\title{Make Map with Some Areas Obscured}
+\title{Make a Map with Some Areas Obscured}
 \usage{
 map_visited_regions(visited_places = NULL, countries = "everywhere",
   show_unvisited = FALSE, group_London = TRUE, add_legend = TRUE,

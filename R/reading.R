@@ -76,11 +76,13 @@ add_pos_label <- function(my_data = NULL, this_label = NULL,
 #' @importFrom readr read_lines
 #' @importFrom stats na.omit
 #' @importFrom stringr str_detect
+#' @importFrom stringr str_extract
 #' @importFrom stringr str_remove
 #' @importFrom stringr str_split_fixed
 #' @importFrom stringr str_squish
 #' @importFrom stringr str_trim
 #' @importFrom tibble add_row
+#' @importFrom tibble tibble
 #' @importFrom tidyr separate
 #' @importFrom tidyr spread
 #' @return a data frame with bibliographic details of books as separate
@@ -88,6 +90,13 @@ add_pos_label <- function(my_data = NULL, this_label = NULL,
 #'   keywords I've noted for each.
 #' @export
 read_book_notes <- function(source_file = NULL){
+
+  # check for a source file ###################################################
+  if (is.null(source_file)){
+    stop("need to specify a source file")
+  }
+  # ###########################################################################
+
   # ###########################################################################
   # read in the raw data as a vector, with each line a single entry in the
   # vector.  Bind this to another vector which will (eventually) hold the 

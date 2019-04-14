@@ -13,11 +13,16 @@ License: GPL-3
 Imports: 
     dplyr,
     ggplot2,
+    lubridate,
     plotly,
+    purrr,
+    readr,
     rgeos,
     rnaturalearth,
     sf,
-    stringr
+    stringr,
+    tibble,
+    tidyr
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1

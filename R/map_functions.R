@@ -1,4 +1,4 @@
-#' Make Map with Some Areas Obscured
+#' Make a Map with Some Areas Obscured
 #'
 #' This function will return a map of a country with
 #' only certain regions visible, based on supplying

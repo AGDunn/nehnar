@@ -64,7 +64,10 @@ add_pos_label <- function(my_data = NULL, this_label = NULL,
 #' @param source_file path to the plain-text file to pull book notes from.
 #'   Will only work if used on a file with the same layout as mine.
 #'   Default NULL.
-#' ZZZ @keywords
+#' @param remove_mess a boolean that determines whether the initial
+#'   messy-looking variables are removed so that the final data frame produced
+#'   is properly tidied.  Default TRUE.
+#' @keywords data munging, idiosyncratic,
 #' @importFrom dplyr case_when
 #' @importFrom dplyr filter
 #' @importFrom dplyr lag
@@ -89,13 +92,23 @@ add_pos_label <- function(my_data = NULL, this_label = NULL,
 #'   columns.  Also includes start and end dates of reading each book and
 #'   keywords I've noted for each.
 #' @export
-read_book_notes <- function(source_file = NULL){
+read_book_notes <- function(source_file = NULL,
+                            remove_mess = TRUE){
 
   # check for a source file ###################################################
   if (is.null(source_file)){
     stop("need to specify a source file")
   }
   # ###########################################################################
+
+# ZZZ todo block ############################################################
+# move author and title to not allcaps.
+# time how long the whole thing and each step takes.
+# tidy out KEY from the keywords list.
+# make a keywords dataframe bit (as an option? default) to split out keywords;
+# this will need to happen after the remove_mess step, if any.
+# add some reading notes data for illustrative purposes.
+# ###########################################################################
 
   # ###########################################################################
   # read in the raw data as a vector, with each line a single entry in the
@@ -256,7 +269,7 @@ read_book_notes <- function(source_file = NULL){
       }
   )
 # ZZZ works but produces an error message; using try() lets the rest of the
-# script execute.
+# script execute.  Is there a way to suppress that error message?
   # ###########################################################################
 
   # remove blank lines and put columns in sensible order ######################
@@ -343,5 +356,23 @@ read_book_notes <- function(source_file = NULL){
         TRUE ~ publisher)
     )
   # ###########################################################################
+
+# turn into tidy data frame #################################################
+# remove the columns that are mixed
+if (remove_mess) {
+  my_reading <- my_reading %>%
+    select(
+      author, year, title,
+      place, publisher,
+      keywords,
+      start_1, finish_1,
+      start_2, finish_2,
+      notes
+    )
+}
+# ###########################################################################
+
+  # finally, return the data frame
+  return(my_reading)
 }
 # #############################################################################

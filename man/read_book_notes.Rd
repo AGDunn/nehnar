@@ -4,13 +4,16 @@
 \alias{read_book_notes}
 \title{Read in My Book Notes}
 \usage{
-read_book_notes(source_file = NULL)
+read_book_notes(source_file = NULL, remove_mess = TRUE)
 }
 \arguments{
 \item{source_file}{path to the plain-text file to pull book notes from.
-  Will only work if used on a file with the same layout as mine.
-  Default NULL.
-ZZZ @keywords}
+Will only work if used on a file with the same layout as mine.
+Default NULL.}
+
+\item{remove_mess}{a boolean that determines whether the initial
+messy-looking variables are removed so that the final data frame produced
+is properly tidied.  Default TRUE.}
 }
 \value{
 a data frame with bibliographic details of books as separate
@@ -26,3 +29,6 @@ Won't work on anything that doesn't match that formatting.  Currently does
 the bare minimum of creating sensible variables.  Doesn't prettify anything
 yet.
 }
+\keyword{data}
+\keyword{idiosyncratic,}
+\keyword{munging,}

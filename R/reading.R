@@ -83,6 +83,7 @@ add_pos_label <- function(my_data = NULL, this_label = NULL,
 #' @importFrom stringr str_remove
 #' @importFrom stringr str_split_fixed
 #' @importFrom stringr str_squish
+#' @importFrom stringr str_sub
 #' @importFrom stringr str_trim
 #' @importFrom tibble add_row
 #' @importFrom tibble tibble
@@ -103,8 +104,8 @@ read_book_notes <- function(source_file = NULL,
 
 # ZZZ todo block ############################################################
 # move author and title to not allcaps.
+#   do with tools::toTitleCase(tolower(<var>))
 # time how long the whole thing and each step takes.
-# tidy out KEY from the keywords list.
 # make a keywords dataframe bit (as an option? default) to split out keywords;
 # this will need to happen after the remove_mess step, if any.
 # add some reading notes data for illustrative purposes.
@@ -357,20 +358,27 @@ read_book_notes <- function(source_file = NULL,
     )
   # ###########################################################################
 
-# turn into tidy data frame #################################################
-# remove the columns that are mixed
-if (remove_mess) {
+  # remove "KEY: " from start of each keywords string #########################
   my_reading <- my_reading %>%
-    select(
-      author, year, title,
-      place, publisher,
-      keywords,
-      start_1, finish_1,
-      start_2, finish_2,
-      notes
-    )
-}
-# ###########################################################################
+    mutate(keywords = str_sub(keywords, 6)
+  )
+  # ###########################################################################
+
+
+  # if told to, select only the tidy variables ################################
+  # discard all the messy ones we started with.
+  if (remove_mess) {
+    my_reading <- my_reading %>%
+      select(
+        author, year, title,
+        place, publisher,
+        keywords,
+        start_1, finish_1,
+        start_2, finish_2,
+        notes
+      )
+  }
+  # ###########################################################################
 
   # finally, return the data frame
   return(my_reading)

@@ -364,9 +364,11 @@ read_book_notes <- function(source_file = NULL,
   # first mutate removes the initial "KEY: "; second mutate replaces each other
   # "KEY: " with a ", ".
   my_reading <- my_reading %>%
-    mutate(keywords = str_remove(keywords, "KEY: ")
+    mutate(keywords = str_remove(keywords, "^KEY: ")
     ) %>%
-    mutate(keywords = str_replace_all(keywords, "KEY: ", ", ")
+    mutate(keywords = str_replace_all(keywords, " *KEY: ", ", ")
+    ) %>%
+    mutate(keywords = str_replace_all(keywords, " ,", ",")
     )
   # ###########################################################################
 

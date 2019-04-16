@@ -81,6 +81,7 @@ add_pos_label <- function(my_data = NULL, this_label = NULL,
 #' @importFrom stringr str_detect
 #' @importFrom stringr str_extract
 #' @importFrom stringr str_remove
+#' @importFrom stringr str_replace_all
 #' @importFrom stringr str_split_fixed
 #' @importFrom stringr str_squish
 #' @importFrom stringr str_sub
@@ -105,6 +106,7 @@ read_book_notes <- function(source_file = NULL,
 # ZZZ todo block ############################################################
 # move author and title to not allcaps.
 #   do with tools::toTitleCase(tolower(<var>))
+#   or stringr::str_to_tile() ?
 # time how long the whole thing and each step takes.
 # make a keywords dataframe bit (as an option? default) to split out keywords;
 # this will need to happen after the remove_mess step, if any.
@@ -358,10 +360,14 @@ read_book_notes <- function(source_file = NULL,
     )
   # ###########################################################################
 
-  # remove "KEY: " from start of each keywords string #########################
+  # clean up keywords so it doesn't say "KEY: " ###############################
+  # first mutate removes the initial "KEY: "; second mutate replaces each other
+  # "KEY: " with a ", ".
   my_reading <- my_reading %>%
-    mutate(keywords = str_sub(keywords, 6)
-  )
+    mutate(keywords = str_remove(keywords, "KEY: ")
+    ) %>%
+    mutate(keywords = str_replace_all(keywords, "KEY: ", ", ")
+    )
   # ###########################################################################
 
 

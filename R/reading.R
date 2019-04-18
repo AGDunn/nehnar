@@ -85,6 +85,7 @@ add_pos_label <- function(my_data = NULL, this_label = NULL,
 #' @importFrom stringr str_split_fixed
 #' @importFrom stringr str_squish
 #' @importFrom stringr str_sub
+#' @importFrom stringr str_to_title
 #' @importFrom stringr str_trim
 #' @importFrom tibble add_row
 #' @importFrom tibble tibble
@@ -104,9 +105,6 @@ read_book_notes <- function(source_file = NULL,
   # ###########################################################################
 
 # ZZZ todo block ############################################################
-# move author and title to not allcaps.
-#   do with tools::toTitleCase(tolower(<var>))
-#   or stringr::str_to_tile() ?
 # time how long the whole thing and each step takes.
 # make a keywords dataframe bit (as an option? default) to split out keywords;
 # this will need to happen after the remove_mess step, if any.
@@ -372,6 +370,15 @@ read_book_notes <- function(source_file = NULL,
     )
   # ###########################################################################
 
+  # format author and title variables #########################################
+# it's not perfect; str_to_title() doesn't know to leave certain words alone
+# when capitalising the first letter of each word.
+my_reading <- my_reading %>%
+  mutate(
+    author = str_to_title(author),
+    title = str_to_title(title)
+  )
+  # ###########################################################################
 
   # if told to, select only the tidy variables ################################
   # discard all the messy ones we started with.

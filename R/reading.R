@@ -67,6 +67,9 @@ add_pos_label <- function(my_data = NULL, this_label = NULL,
 #' @param remove_mess a boolean that determines whether the initial
 #'   messy-looking variables are removed so that the final data frame produced
 #'   is properly tidied.  Default TRUE.
+#' @param diagnose_speed a boolean; if TRUE, function returns a list of two
+#'   objects: the notes and the timings for running the function.  Default
+#'   FALSE.
 #' @keywords data munging, idiosyncratic,
 #' @importFrom dplyr case_when
 #' @importFrom dplyr filter
@@ -96,7 +99,8 @@ add_pos_label <- function(my_data = NULL, this_label = NULL,
 #'   keywords I've noted for each.
 #' @export
 read_book_notes <- function(source_file = NULL,
-                            remove_mess = TRUE){
+                            remove_mess = TRUE,
+                            diagnose_speed = FALSE){
 
   # check for a source file ###################################################
   if (is.null(source_file)){
@@ -104,8 +108,17 @@ read_book_notes <- function(source_file = NULL,
   }
   # ###########################################################################
 
+  # initialise time-check #####################################################
+  if (diagnose_speed) {
+    check_time <- tibble(
+      event = "start",
+      time = Sys.time()
+    )
+  }
+  # ###########################################################################
+
 # ZZZ todo block ############################################################
-# time how long the whole thing and each step takes.
+# use the diagnose_speed option to find the slowest bits
 # make a keywords dataframe bit (as an option? default) to split out keywords;
 # this will need to happen after the remove_mess step, if any.
 # add some reading notes data for illustrative purposes.
@@ -128,6 +141,16 @@ read_book_notes <- function(source_file = NULL,
     add_row(label = "nope", raw_data = "", .before = 1)
   # ########################################################################### 
 
+  # time-check ################################################################
+  if (diagnose_speed) {
+    check_time <- check_time %>%
+      add_row(
+        event = "raw data in",
+        time = Sys.time()
+    )
+  }
+  # ###########################################################################
+
   # add labels based on contents of raw_data ################################## 
   # some data labels (blank lines, start & end dates, keywords) can be added
   # based on contents of raw_data.
@@ -142,6 +165,18 @@ read_book_notes <- function(source_file = NULL,
         TRUE ~ label
       )
     )
+  # ###########################################################################
+
+  # time-check ################################################################
+  if (diagnose_speed) {
+    check_time <- check_time %>%
+      add_row(
+        event = "str_detect inital labels",
+        time = Sys.time()
+    )
+  }
+  # ###########################################################################
+  
   # ###########################################################################
 
   # halt function if there are two blank lines in a row #######################
@@ -166,6 +201,16 @@ read_book_notes <- function(source_file = NULL,
   rm(checker); rm(ind)
   # ###########################################################################
 
+  # time-check ################################################################
+  if (diagnose_speed) {
+    check_time <- check_time %>%
+      add_row(
+        event = "checked for consecutive blanks",
+        time = Sys.time()
+    )
+  }
+  # ###########################################################################
+
   # fix labels for books read more than once ##################################
   # A loop through the label column to add a number to the end of every start_
   # and finish_ label.
@@ -183,6 +228,16 @@ read_book_notes <- function(source_file = NULL,
   rm(read_counter); rm(ind)
   # ###########################################################################
 
+  # time-check ################################################################
+  if (diagnose_speed) {
+    check_time <- check_time %>%
+      add_row(
+        event = "finalised start and fin labels",
+        time = Sys.time()
+    )
+  }
+  # ###########################################################################
+
   # find and label the first author_year_title row per entry ##################
   # adds the label to the first line after each blank line.
   my_reading <- my_reading %>%
@@ -190,6 +245,16 @@ read_book_notes <- function(source_file = NULL,
       this_label = "author_year_title",
       label_checked = "blank"
     )
+  # ###########################################################################
+
+  # time-check ################################################################
+  if (diagnose_speed) {
+    check_time <- check_time %>%
+      add_row(
+        event = "found initial a_y_t lines",
+        time = Sys.time()
+    )
+  }
   # ###########################################################################
 
   # find and label place_publisher row ########################################
@@ -200,6 +265,16 @@ read_book_notes <- function(source_file = NULL,
       this_label = "place_publisher",
       label_checked = "start_1"
     )
+  # ###########################################################################
+
+  # time-check ################################################################
+  if (diagnose_speed) {
+    check_time <- check_time %>%
+      add_row(
+        event = "found place_publisher rows",
+        time = Sys.time()
+    )
+  }
   # ###########################################################################
 
   # label remaining author_year_title using position both ways ################
@@ -229,6 +304,16 @@ read_book_notes <- function(source_file = NULL,
   # This (probably) captures up to four lines of author_year_title properly.
   # ###########################################################################
 
+  # time-check ################################################################
+  if (diagnose_speed) {
+    check_time <- check_time %>%
+      add_row(
+        event = "labelled all a_y_t rows",
+        time = Sys.time()
+    )
+  }
+  # ###########################################################################
+
   # label all remaining "nope" as "notes" ######################################
   my_reading <- my_reading %>%
     mutate(
@@ -237,6 +322,16 @@ read_book_notes <- function(source_file = NULL,
        TRUE ~ label
       )
     )
+  # ###########################################################################
+
+  # time-check ################################################################
+  if (diagnose_speed) {
+    check_time <- check_time %>%
+      add_row(
+        event = "labelled notes rows",
+        time = Sys.time()
+    )
+  }
   # ###########################################################################
 
   # add a per-item index column ###############################################
@@ -252,6 +347,16 @@ read_book_notes <- function(source_file = NULL,
     }
   }
   rm(item_counter); rm(ind)
+  # ###########################################################################
+
+  # time-check ################################################################
+  if (diagnose_speed) {
+    check_time <- check_time %>%
+      add_row(
+        event = "added per-item ID number as col",
+        time = Sys.time()
+    )
+  }
   # ###########################################################################
 
   # join data (e.g. notes) that are split across multiple rows ################
@@ -273,11 +378,32 @@ read_book_notes <- function(source_file = NULL,
 # script execute.  Is there a way to suppress that error message?
   # ###########################################################################
 
+  # time-check ################################################################
+  if (diagnose_speed) {
+    check_time <- check_time %>%
+      add_row(
+        event = "joined multi-row data",
+        time = Sys.time()
+    )
+  }
+  # ###########################################################################
+
   # remove blank lines and put columns in sensible order ######################
   my_reading <- my_reading %>%
     filter(label != "blank") %>%
     select(item, label, raw_data)
   # ###########################################################################
+
+  # time-check ################################################################
+  if (diagnose_speed) {
+    check_time <- check_time %>%
+      add_row(
+        event = "removed blanks and reordered cols",
+        time = Sys.time()
+    )
+  }
+  # ###########################################################################
+
 
   # turn it into a standard-issue wide data frame #############################
   # putting the columns in a sensible order (it wants to do them
@@ -289,6 +415,16 @@ read_book_notes <- function(source_file = NULL,
     select(-item)
   # once it's in a more standard format, Tidyverse tools for working with
   # columns can be used.  Wickham has created pivot() as a successor function.
+  # ###########################################################################
+
+  # time-check ################################################################
+  if (diagnose_speed) {
+    check_time <- check_time %>%
+      add_row(
+        event = "transposed with labels becoming colnames",
+        time = Sys.time()
+    )
+  }
   # ###########################################################################
 
   # splitting author_year_title and cleaning the new cols #####################
@@ -305,6 +441,17 @@ read_book_notes <- function(source_file = NULL,
     )
 # ZZZ this won't work on items with no publication date; fix with case_when()?
   # ###########################################################################
+
+  # time-check ################################################################
+  if (diagnose_speed) {
+    check_time <- check_time %>%
+      add_row(
+        event = "split author, title and year out",
+        time = Sys.time()
+    )
+  }
+  # ###########################################################################
+
 
   # clean the start_ and finish_ variables into dates #########################
   # tried to be clever earlier with gettig it to dynamically go through column
@@ -333,6 +480,17 @@ read_book_notes <- function(source_file = NULL,
     )
   # ###########################################################################
 
+  # time-check ################################################################
+  if (diagnose_speed) {
+    check_time <- check_time %>%
+      add_row(
+        event = "starts and finishes are dates",
+        time = Sys.time()
+    )
+  }
+  # ###########################################################################
+
+
   # split out place and publisher #############################################
   # first turn place_publisher into 2 cols: place, publisher
   my_reading <- my_reading %>%
@@ -358,6 +516,17 @@ read_book_notes <- function(source_file = NULL,
     )
   # ###########################################################################
 
+  # time-check ################################################################
+  if (diagnose_speed) {
+    check_time <- check_time %>%
+      add_row(
+        event = "split place and publisher",
+        time = Sys.time()
+    )
+  }
+  # ###########################################################################
+
+
   # clean up keywords so it doesn't say "KEY: " ###############################
   # first mutate removes the initial "KEY: "; second mutate replaces each other
   # "KEY: " with a ", ".
@@ -370,14 +539,34 @@ read_book_notes <- function(source_file = NULL,
     )
   # ###########################################################################
 
+  # time-check ################################################################
+  if (diagnose_speed) {
+    check_time <- check_time %>%
+      add_row(
+        event = "clean keywords",
+        time = Sys.time()
+    )
+  }
+  # ###########################################################################
+
   # format author and title variables #########################################
-# it's not perfect; str_to_title() doesn't know to leave certain words alone
-# when capitalising the first letter of each word.
-my_reading <- my_reading %>%
-  mutate(
-    author = str_to_title(author),
-    title = str_to_title(title)
+  # it's not perfect; str_to_title() doesn't know to leave certain words alone
+  # when capitalising the first letter of each word.
+  my_reading <- my_reading %>%
+    mutate(
+      author = str_to_title(author),
+      title = str_to_title(title)
   )
+  # ###########################################################################
+
+  # time-check ################################################################
+  if (diagnose_speed) {
+    check_time <- check_time %>%
+      add_row(
+        event = "format author and title",
+        time = Sys.time()
+    )
+  }
   # ###########################################################################
 
   # if told to, select only the tidy variables ################################
@@ -392,10 +581,31 @@ my_reading <- my_reading %>%
         start_2, finish_2,
         notes
       )
+    # time-check ##############################################################
+    if (diagnose_speed) {
+      check_time <- check_time %>%
+        add_row(
+          event = "select the tidy cols to return",
+          time = Sys.time()
+      )
+    }
+    # #######################################################################
   }
   # ###########################################################################
 
-  # finally, return the data frame
-  return(my_reading)
+
+  # finally, return the data frame or the data and the timings
+  if (diagnose_speed) {
+    check_time <- check_time %>%
+      mutate(
+        speed = time - lag(time, 1)
+      )
+    return(
+      list(my_reading, check_time)
+    )
+  } else {
+    return(my_reading)
+  }
+# #############################################################################
 }
 # #############################################################################

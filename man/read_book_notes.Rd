@@ -16,9 +16,8 @@ Default NULL.}
 messy-looking variables are removed so that the final data frame produced
 is properly tidied.  Default TRUE.}
 
-\item{diagnose_speed}{a boolean; if TRUE, function returns a list of two
-objects: the notes and the timings for running the function.  Default
-FALSE.}
+\item{diagnose_speed}{a boolean; if TRUE, returns a self-diagnosis instead
+of the notes on books.  Default FALSE.}
 }
 \value{
 a data frame with bibliographic details of books as separate
@@ -30,9 +29,9 @@ Reads in a plain text file of notes on books and returns a tidy data frame.
 }
 \details{
 Designed for my own format of notes on books, including when I read them.
-Won't work on anything that doesn't match that formatting.  Currently does
-the bare minimum of creating sensible variables.  Doesn't prettify anything
-yet.
+Won't work on anything that doesn't match that formatting.  Creates
+tolerably pretty variables.  If asked to, will return a report of how long
+each step of the function took instead of returning the notes.
 }
 \keyword{data}
 \keyword{idiosyncratic,}

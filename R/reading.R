@@ -57,9 +57,9 @@ add_pos_label <- function(my_data = NULL, this_label = NULL,
 #' Reads in a plain text file of notes on books and returns a tidy data frame.
 #'
 #' Designed for my own format of notes on books, including when I read them.
-#' Won't work on anything that doesn't match that formatting.  Currently does
-#' the bare minimum of creating sensible variables.  Doesn't prettify anything
-#' yet.
+#' Won't work on anything that doesn't match that formatting.  Creates
+#' tolerably pretty variables.  If asked to, will return a report of how long
+#' each step of the function took instead of returning the notes.
 #'
 #' @param source_file path to the plain-text file to pull book notes from.
 #'   Will only work if used on a file with the same layout as mine.
@@ -67,9 +67,8 @@ add_pos_label <- function(my_data = NULL, this_label = NULL,
 #' @param remove_mess a boolean that determines whether the initial
 #'   messy-looking variables are removed so that the final data frame produced
 #'   is properly tidied.  Default TRUE.
-#' @param diagnose_speed a boolean; if TRUE, function returns a list of two
-#'   objects: the notes and the timings for running the function.  Default
-#'   FALSE.
+#' @param diagnose_speed a boolean; if TRUE, returns a self-diagnosis instead
+#'   of the notes on books.  Default FALSE.
 #' @keywords data munging, idiosyncratic,
 #' @importFrom dplyr case_when
 #' @importFrom dplyr filter
@@ -589,20 +588,18 @@ read_book_notes <- function(source_file = NULL,
           time = Sys.time()
       )
     }
-    # #######################################################################
+    # #########################################################################
   }
   # ###########################################################################
 
 
-  # finally, return the data frame or the data and the timings
+  # return either the data or the self-diagnosis
   if (diagnose_speed) {
     check_time <- check_time %>%
       mutate(
         speed = time - lag(time, 1)
       )
-    return(
-      list(my_reading, check_time)
-    )
+    return(check_time)
   } else {
     return(my_reading)
   }

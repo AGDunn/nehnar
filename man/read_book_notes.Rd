@@ -5,7 +5,7 @@
 \title{Read in My Book Notes}
 \usage{
 read_book_notes(source_file = NULL, remove_mess = TRUE,
-  diagnose_speed = FALSE)
+  keep_ugly_dates = FALSE, diagnose_speed = FALSE)
 }
 \arguments{
 \item{source_file}{path to the plain-text file to pull book notes from.
@@ -16,13 +16,18 @@ Default NULL.}
 messy-looking variables are removed so that the final data frame produced
 is properly tidied.  Default TRUE.}
 
+\item{keep_ugly_dates}{a boolean; if TRUE, the data frame returned will 
+include the character version of the dates as well as the cleaned-up
+date class columns.  Default FALSE.}
+
 \item{diagnose_speed}{a boolean; if TRUE, returns a self-diagnosis instead
 of the notes on books.  Default FALSE.}
 }
 \value{
 a data frame with bibliographic details of books as separate
   columns.  Also includes start and end dates of reading each book and
-  keywords I've noted for each.
+  keywords I've noted for each.  If asked to, will return a diagnosis of the
+  function speed instead of the data frame.
 }
 \description{
 Reads in a plain text file of notes on books and returns a tidy data frame.

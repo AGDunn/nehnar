@@ -67,6 +67,9 @@ add_pos_label <- function(my_data = NULL, this_label = NULL,
 #' @param remove_mess a boolean that determines whether the initial
 #'   messy-looking variables are removed so that the final data frame produced
 #'   is properly tidied.  Default TRUE.
+#' @param keep_ugly_dates a boolean; if TRUE, the data frame returned will 
+#'   include the character version of the dates as well as the cleaned-up
+#'   date class columns.  Default FALSE.
 #' @param diagnose_speed a boolean; if TRUE, returns a self-diagnosis instead
 #'   of the notes on books.  Default FALSE.
 #' @keywords data munging, idiosyncratic,
@@ -95,10 +98,12 @@ add_pos_label <- function(my_data = NULL, this_label = NULL,
 #' @importFrom tidyr spread
 #' @return a data frame with bibliographic details of books as separate
 #'   columns.  Also includes start and end dates of reading each book and
-#'   keywords I've noted for each.
+#'   keywords I've noted for each.  If asked to, will return a diagnosis of the
+#'   function speed instead of the data frame.
 #' @export
 read_book_notes <- function(source_file = NULL,
                             remove_mess = TRUE,
+                            keep_ugly_dates = FALSE,
                             diagnose_speed = FALSE){
 
   # check for a source file ###################################################
@@ -451,6 +456,30 @@ read_book_notes <- function(source_file = NULL,
   }
   # ###########################################################################
 
+  # keep string version of start/finish dates? ################################
+  # removes the text from the start of lines.
+  if (keep_ugly_dates) {
+    my_reading <- my_reading %>%
+      mutate(
+        char_start_1 = start_1, 
+        char_start_2 = start_2,
+        char_finish_1 = finish_1,
+        char_finish_2 = finish_2
+      ) %>%
+        mutate(
+          char_start_1 = str_remove(char_start_1, "start:"),
+          char_start_2 = str_remove(char_start_2, "start:"),
+          char_finish_1 = str_remove(char_finish_1, "finish:"),
+          char_finish_2 = str_remove(char_finish_2, "finish:")
+        ) %>%
+        mutate(
+          char_start_1 = str_trim(char_start_1),
+          char_start_2 = str_trim(char_start_2),
+          char_finish_1 = str_trim(char_finish_1),
+          char_finish_2 = str_trim(char_finish_2)
+        )
+      }
+  # ###########################################################################
 
   # clean the start_ and finish_ variables into dates #########################
   # tried to be clever earlier with gettig it to dynamically go through column
@@ -462,20 +491,20 @@ read_book_notes <- function(source_file = NULL,
     mutate(
       start_1 = str_remove(start_1, "start:"),
       start_2 = str_remove(start_2, "start:"),
-      finish_1= str_remove(finish_1, "finish:"),
-      finish_2= str_remove(finish_2, "finish:")
+      finish_1 = str_remove(finish_1, "finish:"),
+      finish_2 = str_remove(finish_2, "finish:")
     ) %>%
     mutate(
       start_1 = str_trim(start_1),
       start_2 = str_trim(start_2),
-      finish_1= str_trim(finish_1),
-      finish_2= str_trim(finish_2)
+      finish_1 = str_trim(finish_1),
+      finish_2 = str_trim(finish_2)
     ) %>%
     mutate(
       start_1 = quiet_dmy(start_1)$result,
       start_2 = quiet_dmy(start_2)$result,
-      finish_1= quiet_dmy(finish_1)$result,
-      finish_2= quiet_dmy(finish_2)$result
+      finish_1 = quiet_dmy(finish_1)$result,
+      finish_2 = quiet_dmy(finish_2)$result
     )
   # ###########################################################################
 
@@ -569,8 +598,30 @@ read_book_notes <- function(source_file = NULL,
   # ###########################################################################
 
   # if told to, select only the tidy variables ################################
+  # will either give everything, just the tidy variables, or the tidy ones and
+  # the string version of the dates.
   # discard all the messy ones we started with.
-  if (remove_mess) {
+  if (keep_ugly_dates) {
+    my_reading <- my_reading %>%
+      select(
+        author, year, title,
+        place, publisher,
+        keywords,
+        start_1, finish_1,
+        start_2, finish_2,
+        notes,
+        char_start_1, char_start_2,
+        char_finish_1, char_finish_2
+      )
+    # time-check ##############################################################
+    if (diagnose_speed) {
+      check_time <- check_time %>%
+        add_row(
+          event = "select the tidy cols to return",
+          time = Sys.time()
+      )
+    }
+  } else if (remove_mess) {
     my_reading <- my_reading %>%
       select(
         author, year, title,

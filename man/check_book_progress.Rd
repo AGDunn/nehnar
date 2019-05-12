@@ -15,11 +15,15 @@ default NULL.}
 }
 \value{
 The same dataframe, with the following additional columns:
-  unfinished_1
-  unfinished_2
-  relevant
-  duration_1
-  duration_2
+  \describe{
+    \item{unfinished_1}{boolean; whether read_1 finished the book}
+    \item{unfinished_2}{boolean; whether read_2 finished the book}
+    \item{relevant}{used to filter books}
+    \item{duration_1}{integer; how many days read_1 took;
+      equals today if unfinished_1 TRUE}
+    \item{duration_2}{integer; how many days read_1 took;
+      equals today if unfinished_2 TRUE}
+  }
 }
 \description{
 Shows book completion stats on a date specified by user.

@@ -740,11 +740,15 @@ append_id <- function(my_df = NULL, my_id_col = NULL){
 #' @param a_date a date or character object of the form "day month year".  
 #'   default NULL.
 #' @return The same dataframe, with the following additional columns:
-#'   unfinished_1
-#'   unfinished_2
-#'   relevant
-#'   duration_1
-#'   duration_2
+#'   \describe{
+#'     \item{unfinished_1}{boolean; whether read_1 finished the book}
+#'     \item{unfinished_2}{boolean; whether read_2 finished the book}
+#'     \item{relevant}{used to filter books}
+#'     \item{duration_1}{integer; how many days read_1 took;
+#'       equals today if unfinished_1 TRUE}
+#'     \item{duration_2}{integer; how many days read_1 took;
+#'       equals today if unfinished_2 TRUE}
+#'   }
 #' @export
 check_book_progress <- function(my_data = NULL, a_date = NULL){
 

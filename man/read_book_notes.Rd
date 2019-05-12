@@ -39,5 +39,5 @@ tolerably pretty variables.  If asked to, will return a report of how long
 each step of the function took instead of returning the notes.
 }
 \keyword{data}
-\keyword{idiosyncratic,}
+\keyword{idiosyncratic}
 \keyword{munging,}

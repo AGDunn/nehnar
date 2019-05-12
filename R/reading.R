@@ -1,3 +1,4 @@
+# #############################################################################
 #' Label a Row Based on Label Above or Label Below
 #'
 #' Alter labels in a data frame based on relative position of other labels in
@@ -28,6 +29,7 @@
 #' @importFrom dplyr lag
 #' @importFrom dplyr case_when
 #' @importFrom dplyr lead
+#' @importFrom magrittr %>%
 #' @return a data frame corresponding to my_data but with some row values in
 #'   the label variable changed as requested.
 add_pos_label <- function(my_data = NULL, this_label = NULL,
@@ -50,8 +52,9 @@ add_pos_label <- function(my_data = NULL, this_label = NULL,
       )
   }
 }
-# ###########################################################################
+# #############################################################################
 
+# #############################################################################
 #' Read in My Book Notes
 #' 
 #' Reads in a plain text file of notes on books and returns a tidy data frame.
@@ -72,7 +75,7 @@ add_pos_label <- function(my_data = NULL, this_label = NULL,
 #'   date class columns.  Default FALSE.
 #' @param diagnose_speed a boolean; if TRUE, returns a self-diagnosis instead
 #'   of the notes on books.  Default FALSE.
-#' @keywords data munging, idiosyncratic,
+#' @keywords data munging, idiosyncratic
 #' @importFrom dplyr case_when
 #' @importFrom dplyr filter
 #' @importFrom dplyr lag
@@ -80,6 +83,7 @@ add_pos_label <- function(my_data = NULL, this_label = NULL,
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
 #' @importFrom lubridate dmy
+#' @importFrom magrittr %>%
 #' @importFrom purrr quietly
 #' @importFrom readr read_lines
 #' @importFrom stats na.omit
@@ -121,12 +125,12 @@ read_book_notes <- function(source_file = NULL,
   }
   # ###########################################################################
 
-# ZZZ todo block ############################################################
+# ZZZ todo block ##############################################################
 # use the diagnose_speed option to find the slowest bits
 # make a keywords dataframe bit (as an option? default) to split out keywords;
 # this will need to happen after the remove_mess step, if any.
 # add some reading notes data for illustrative purposes.
-# ###########################################################################
+# #############################################################################
 
   # ###########################################################################
   # read in the raw data as a vector, with each line a single entry in the
@@ -408,7 +412,6 @@ read_book_notes <- function(source_file = NULL,
   }
   # ###########################################################################
 
-
   # turn it into a standard-issue wide data frame #############################
   # putting the columns in a sensible order (it wants to do them
   # alphabetically) would mean having to explicitly name columns to select,
@@ -518,7 +521,6 @@ read_book_notes <- function(source_file = NULL,
   }
   # ###########################################################################
 
-
   # split out place and publisher #############################################
   # first turn place_publisher into 2 cols: place, publisher
   my_reading <- my_reading %>%
@@ -553,7 +555,6 @@ read_book_notes <- function(source_file = NULL,
     )
   }
   # ###########################################################################
-
 
   # clean up keywords so it doesn't say "KEY: " ###############################
   # first mutate removes the initial "KEY: "; second mutate replaces each other
@@ -643,7 +644,6 @@ read_book_notes <- function(source_file = NULL,
   }
   # ###########################################################################
 
-
   # return either the data or the self-diagnosis
   if (diagnose_speed) {
     check_time <- check_time %>%
@@ -654,6 +654,148 @@ read_book_notes <- function(source_file = NULL,
   } else {
     return(my_reading)
   }
+  # ###########################################################################
+}
 # #############################################################################
+
+# #############################################################################
+
+# #############################################################################
+#' Distinguish between Things Published in Same Year
+#'
+#' Given a dataframe with an identifier variable, returns the same dataframe
+#' with a different letter appended to repeat values of that variable.
+#' 
+#' Some authors will produce more than one book (or other bibliography item) 
+#' in a particular year.  When two or more such items are present, this
+#' function will add a letter to the end of the date, starting at 'a' and
+#' cycling through the (English) alphabet.  It'll do this to any character
+#' variable, but this will result in silly outcomes unless the last part of the
+#' string is a year.
+#'
+#' @param my_df a dataframe with an identifier that needs to be made unique.
+#'   Default NULL.
+#' @param my_id_col a character column in that dataframe to be altered so that
+#'   all values in it are unique.  Default NULL.
+#' @keywords data munging, ID variables, bibliography,
+#' @importFrom dplyr arrange
+#' @importFrom dplyr mutate
+#' @importFrom dplyr select
+#' @importFrom dplyr case_when
+#' @importFrom dplyr lag
+#' @importFrom dplyr lead
+#' @importFrom dplyr enquo
+#' @importFrom magrittr %>%
+#' @importFrom rlang :=
+#' @return a dataframe identical to the one supplied to the function but with
+#'   the identifier variable altered so that repeats of a given value are now
+#'   distinguished by a letter appended to the string (e.g. if 'Smith 2010'
+#'   appears twice in the original, there will now be a 'Smith 2010a' and a 
+#'   'Smith 2010b'.
+#' @export
+append_id <- function(my_df = NULL, my_id_col = NULL){
+  quo_id <- enquo(my_id_col)
+  for_dupes <- c("", letters)
+  
+  my_df <- my_df %>%
+    arrange(!!quo_id) %>%
+    mutate(temp_id = !!quo_id, dupe_seq = 0) %>%
+    select(-!!quo_id) %>%
+    mutate(dupe_seq = case_when(
+        temp_id == lead(temp_id, n = 1) ~ lag(dupe_seq) + 1,
+        TRUE ~ dupe_seq)
+    ) %>% 
+    mutate(dupe_seq = case_when(
+      temp_id == lag(temp_id, n = 1) ~ lag(dupe_seq) + 1,
+      TRUE ~ dupe_seq)
+    ) %>% 
+    mutate(temp_id = paste0(temp_id, for_dupes[dupe_seq + 1])
+    ) %>%
+    mutate(!!quo_id := temp_id) %>%
+    select(-dupe_seq, -temp_id)
+
+  return(my_df)
+}
+# #############################################################################
+
+# #############################################################################
+#' Show Book Progress on a Particular Day
+#' 
+#' Shows book completion stats on a date specified by user.
+#' 
+#' Supplied with a dataframe of book notes and a date of interest, this
+#' function will first filter out books that had unparsable finish dates.  It
+#' will return the dataframe supplied to it with additional columns to show how
+#' long a read attempt has taken (and whether it has been completed or just set
+#' with an end date equal to the current system date).
+#' 
+#' @importFrom dplyr select
+#' @importFrom dplyr filter
+#' @importFrom dplyr mutate
+#' @importFrom dplyr case_when
+#' @importFrom lubridate dmy
+#' @importFrom magrittr %>%
+#' @param my_data a dataframe of book notes.  Must include start and finish
+#'   dates for reading attempts.  Default NULL.
+#' @param a_date a date or character object of the form "day month year".  
+#'   default NULL.
+#' @return The same dataframe, with the following additional columns:
+#'   unfinished_1
+#'   unfinished_2
+#'   relevant
+#'   duration_1
+#'   duration_2
+#' @export
+check_book_progress <- function(my_data = NULL, a_date = NULL){
+
+  # make sure it's got a date to work with.
+  target_date <- dmy(a_date)
+  
+  # everything else is one pipe chain applied to the data.
+
+  # filter out books with ambiguous finish dates.
+  my_notes_some <- my_data %>%
+    filter(!(!is.na(char_finish_1) & is.na(finish_1))) %>%
+    filter(!(!is.na(char_finish_2) & is.na(finish_2))) %>%
+  
+  # create variables to show unfinished read attempts
+  mutate(
+    unfinished_1 = case_when(
+      (start_1 <= target_date & is.na(finish_1)) ~ TRUE,
+      TRUE ~ FALSE
+    ),
+    unfinished_2 = case_when(
+      (start_2 <= target_date & is.na(finish_2)) ~ TRUE,
+      TRUE ~ FALSE
+    )
+  ) %>%
+  mutate(
+    finish_1 = case_when(
+      unfinished_1 ~ Sys.Date(),
+      TRUE ~ finish_1
+    ),
+    finish_2 = case_when(
+      unfinished_2 ~ Sys.Date(),
+      TRUE ~ finish_2
+    )
+  ) %>%
+  
+  # create check for relevance based on target_date; filter using it.
+  mutate(
+    relevant = case_when(
+      (start_1 <= target_date & finish_1 >= target_date) ~ TRUE,
+      (start_2 <= target_date & finish_2 >= target_date) ~ TRUE,
+      TRUE ~ FALSE
+    )
+  ) %>%
+  filter(relevant) %>%
+  
+  # add a duration (in days) of reads
+    mutate(
+      duration_1 = finish_1 - start_1,
+      duration_2 = finish_2 - start_2
+    )
+
+  return(my_notes_some)
 }
 # #############################################################################

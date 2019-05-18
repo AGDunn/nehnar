@@ -802,9 +802,9 @@ check_book_progress <- function(my_data = NULL, a_date = NULL){
 
   return(my_notes_some)
 }
-# #############################################################################
+# ###############################################################################
 
-# ######################################################################################
+# ###############################################################################
 #' Show the number of books read and not-yet-finished on a give date
 #'
 #' Given a target date, returns a tibble which shows how many read-throughs
@@ -849,4 +849,61 @@ book_finish_rate <- function(target_date = Sys.Date(), my_notes = NULL){
   
     return(my_summary)
 }
-# ######################################################################################
+# ###############################################################################
+
+# ###############################################################################
+#' find the number of finished and unfinihsed book reads over sequence of dates
+#'
+#' Based on the start and finish dates in a book notes data frame, returns a
+#' new data frame showing the number of books finished by each date and the
+#' number of books still mid-read on each date.
+#'
+#' @param start_date a date or a string that can be parsed by lubridate's
+#'   `dmy()`.  Default Sys.Date() - 7.
+#' @param end_date a date or a string that can be parsed by lubridate's
+#'   `dmy()`.  Default Sys.Date().
+#' @param my_notes a book notes dataframe; default NULL
+#' @importFrom lubridate dmy
+#' @importFrom purrr pmap_dfr
+#' @importFrom tibble as_tibble
+#' @keywords book notes, summary
+#' @export
+book_finish_ratios <- function(start_date = (Sys.Date() - 7),
+                                 end_date = Sys.Date(),
+                                 my_notes = NULL){
+
+  # convert string inputs to dmy() #############################################
+  if (!is.Date(start_date)){
+    start_date <- dmy(start_date)
+  }
+  
+  if (!is.Date(end_date)){
+    end_date <- dmy(end_date)
+  }
+  # ############################################################################
+
+# ############################################################################
+# ZZZ better defaults would be
+#   min: lowest date in the notes
+#   max: today
+# to Sys.Date().
+# ############################################################################
+
+  # create vector of dates to check over #######################################
+    some_days <- seq.Date(
+      from = start_date, to = end_date,
+      by = 1
+    )
+  # ############################################################################
+  
+    
+  # map book_finish_rate onto dates and notes ##################################
+  holder <- pmap_dfr(list(some_days), book_finish_rate, my_notes)
+  # ############################################################################
+
+  # form into tibble with the dates, return it #################################
+  books_by_day <- as_tibble(cbind(some_days, holder))
+  return(books_by_day)
+  # ############################################################################
+}
+# ###############################################################################

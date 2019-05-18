@@ -803,3 +803,50 @@ check_book_progress <- function(my_data = NULL, a_date = NULL){
   return(my_notes_some)
 }
 # #############################################################################
+
+# ######################################################################################
+#' Show the number of books read and not-yet-finished on a give date
+#'
+#' Given a target date, returns a tibble which shows how many read-throughs
+#' of books were finished on before that date and how many were 'in 
+#' progress' (i.e. unfinished) on that date.
+#'
+#' @param target_date a date; default is Sys.Date()
+#' @param my_notes a book-notes dataframe; default NULL
+#' @importFrom dplyr case_when
+#' @importFrom dplyr mutate
+#' @importFrom dplyr summarise
+#' @importFrom magrittr %>%
+#' @keywords book notes, summary
+#' @return a one-row tibble of two columns: the number of books finished on
+#'   target_date, then the number unfinished on target_date.
+book_finish_rate <- function(target_date = Sys.Date(), my_notes = NULL){
+  my_summary <- my_notes %>%
+    mutate(
+      finished_1 = case_when(
+        finish_1 <= target_date ~ TRUE,
+        TRUE ~ FALSE
+      ),
+      finished_2 = case_when(
+        finish_2 <= target_date ~ TRUE,
+        TRUE ~ FALSE
+      ),
+      unfinished_1 = case_when(
+        start_1 <= target_date &
+          (finish_1 > target_date | is.na(finish_1)) ~ TRUE,
+        TRUE ~ FALSE
+      ),
+      unfinished_2 = case_when(
+        start_2 <= target_date & 
+          (finish_2 > target_date | is.na(finish_2)) ~ TRUE,
+        TRUE ~ FALSE
+      )
+    ) %>%
+    # sum the finished counts and the unfinished counts
+    summarise(total_finished = sum(finished_1, finished_2),
+      total_unfinished = sum(unfinished_1, unfinished_2)
+    )
+  
+    return(my_summary)
+}
+# ######################################################################################

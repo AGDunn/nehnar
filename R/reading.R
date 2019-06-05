@@ -736,9 +736,9 @@ append_id <- function(my_df = NULL, my_id_col = NULL){
 #' @importFrom lubridate dmy
 #' @importFrom magrittr %>%
 #' @param my_data a dataframe of book notes.  Must include start and finish
-#'   dates for reading attempts.  Default NULL.
+#'   dates for reading attempts.  No default.
 #' @param a_date a date or character object of the form "day month year".  
-#'   default NULL.
+#'   No default.
 #' @return The same dataframe, with the following additional columns:
 #'   \describe{
 #'     \item{unfinished_1}{boolean; whether read_1 finished the book}
@@ -750,10 +750,12 @@ append_id <- function(my_df = NULL, my_id_col = NULL){
 #'       equals today if unfinished_2 TRUE}
 #'   }
 #' @export
-check_book_progress <- function(my_data = NULL, a_date = NULL){
+check_book_progress <- function(my_data, a_date){
 
-  # make sure it's got a date to work with.
-  target_date <- dmy(a_date)
+  # transform a character a_date input to a date if needed
+  if (is.character(a_date)){
+    target_date <- dmy(a_date)
+  }
   
   # everything else is one pipe chain applied to the data.
 

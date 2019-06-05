@@ -4,14 +4,14 @@
 \alias{check_book_progress}
 \title{Show Book Progress on a Particular Day}
 \usage{
-check_book_progress(my_data = NULL, a_date = NULL)
+check_book_progress(my_data, a_date)
 }
 \arguments{
 \item{my_data}{a dataframe of book notes.  Must include start and finish
-dates for reading attempts.  Default NULL.}
+dates for reading attempts.  No default.}
 
 \item{a_date}{a date or character object of the form "day month year".
-default NULL.}
+No default.}
 }
 \value{
 The same dataframe, with the following additional columns:

@@ -754,7 +754,7 @@ check_book_progress <- function(my_data, a_date){
 
   # transform a character a_date input to a date if needed
   if (is.character(a_date)){
-    target_date <- dmy(a_date)
+    a_date <- dmy(a_date)
   }
   
   # everything else is one pipe chain applied to the data.
@@ -767,11 +767,11 @@ check_book_progress <- function(my_data, a_date){
   # create variables to show unfinished read attempts
   mutate(
     unfinished_1 = case_when(
-      (start_1 <= target_date & is.na(finish_1)) ~ TRUE,
+      (start_1 <= a_date & is.na(finish_1)) ~ TRUE,
       TRUE ~ FALSE
     ),
     unfinished_2 = case_when(
-      (start_2 <= target_date & is.na(finish_2)) ~ TRUE,
+      (start_2 <= a_date & is.na(finish_2)) ~ TRUE,
       TRUE ~ FALSE
     )
   ) %>%
@@ -786,11 +786,11 @@ check_book_progress <- function(my_data, a_date){
     )
   ) %>%
   
-  # create check for relevance based on target_date; filter using it.
+  # create check for relevance based on a_date; filter using it.
   mutate(
     relevant = case_when(
-      (start_1 <= target_date & finish_1 >= target_date) ~ TRUE,
-      (start_2 <= target_date & finish_2 >= target_date) ~ TRUE,
+      (start_1 <= a_date & finish_1 >= a_date) ~ TRUE,
+      (start_2 <= a_date & finish_2 >= a_date) ~ TRUE,
       TRUE ~ FALSE
     )
   ) %>%
@@ -804,9 +804,9 @@ check_book_progress <- function(my_data, a_date){
 
   return(my_notes_some)
 }
-# ###############################################################################
+# #############################################################################
 
-# ###############################################################################
+# #############################################################################
 #' Show the number of books read and not-yet-finished on a give date
 #'
 #' Given a target date, returns a tibble which shows how many read-throughs

@@ -724,7 +724,6 @@ append_id <- function(my_df = NULL, my_id_col = NULL){
 #' Shows book completion stats on a date specified by user.
 #' 
 #' Supplied with a dataframe of book notes and a date of interest, this
-#' function will first filter out books that had unparsable finish dates.  It
 #' will return the dataframe supplied to it with additional columns to show how
 #' long a read attempt has taken (and whether it has been completed or just set
 #' with an end date equal to the current system date).
@@ -759,10 +758,7 @@ check_book_progress <- function(my_data, a_date){
   
   # everything else is one pipe chain applied to the data.
 
-  # filter out books with ambiguous finish dates.
   my_notes_some <- my_data %>%
-    filter(!(!is.na(char_finish_1) & is.na(finish_1))) %>%
-    filter(!(!is.na(char_finish_2) & is.na(finish_2))) %>%
   
   # create variables to show unfinished read attempts
   mutate(

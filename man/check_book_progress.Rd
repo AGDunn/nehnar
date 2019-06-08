@@ -30,7 +30,6 @@ Shows book completion stats on a date specified by user.
 }
 \details{
 Supplied with a dataframe of book notes and a date of interest, this
-function will first filter out books that had unparsable finish dates.  It
 will return the dataframe supplied to it with additional columns to show how
 long a read attempt has taken (and whether it has been completed or just set
 with an end date equal to the current system date).

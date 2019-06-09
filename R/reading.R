@@ -728,26 +728,21 @@ append_id <- function(my_df = NULL, my_id_col = NULL){
 #' long a read attempt has taken (and whether it has been completed or just set
 #' with an end date equal to the current system date).
 #' 
-#' @importFrom dplyr select
-#' @importFrom dplyr filter
-#' @importFrom dplyr mutate
+#' @importFrom dplyr bind_rows
 #' @importFrom dplyr case_when
+#' @importFrom dplyr filter
+#' @importFrom tidyr gather
+#' @importFrom dplyr mutate
+#' @importFrom dplyr select
+#' @importFrom dplyr starts_with
 #' @importFrom lubridate dmy
 #' @importFrom magrittr %>%
+#' @importFrom tidyr spread
 #' @param my_data a dataframe of book notes.  Must include start and finish
 #'   dates for reading attempts.  No default.
 #' @param a_date a date or character object of the form "day month year".  
 #'   No default.
-#' @return The same dataframe, with the following additional columns:
-#'   \describe{
-#'     \item{unfinished_1}{boolean; whether read_1 finished the book}
-#'     \item{unfinished_2}{boolean; whether read_2 finished the book}
-#'     \item{relevant}{used to filter books}
-#'     \item{duration_1}{integer; how many days read_1 took;
-#'       equals today if unfinished_1 TRUE}
-#'     \item{duration_2}{integer; how many days read_1 took;
-#'       equals today if unfinished_2 TRUE}
-#'   }
+#' @return A data frame with one row per read attempt.
 #' @export
 check_book_progress <- function(my_data, a_date){
 
@@ -756,46 +751,72 @@ check_book_progress <- function(my_data, a_date){
     a_date <- dmy(a_date)
   }
   
-  # everything else is one pipe chain applied to the data.
-
-  my_notes_some <- my_data %>%
+  # turn df into read-attempt-per-row format ##################################
+    my_data <- my_data %>%
+      gather(starts_with("start_"), starts_with("finish_"),
+        key = date_type, value = a_date)
+    
+  # split into separate data frames for read_1 and read_2 #####################
+  my_data_1 <- my_data %>%
+    filter(date_type == "start_1" | date_type == "finish_1")
+    
+  my_data_2 <- my_data %>%
+    filter(date_type == "start_2" | date_type == "finish_2")
   
-  # create variables to show unfinished read attempts
-  mutate(
-    unfinished_1 = case_when(
-      (start_1 <= a_date & is.na(finish_1)) ~ TRUE,
+  # both df get new columns: start and finish #################################
+  # whether it's read_1 or read_2 is no longer recorded
+  # any which have NA for both start and finish are removed
+  my_data_1 <- my_data_1 %>%
+    mutate( 
+      date_type = case_when(
+        str_detect(date_type, "start_") ~ "start",
+        str_detect(date_type, "finish_") ~ "finish"
+      )
+    ) %>%
+    spread(date_type, a_date) %>%
+    filter(!is.na(start) & !is.na(finish))
+  
+  my_data_2 <- my_data_2 %>%
+    mutate(
+      date_type = case_when(
+        str_detect(date_type, "start_") ~ "start",
+        str_detect(date_type, "finish_") ~ "finish"
+      )
+    ) %>%
+    spread(date_type, a_date) %>%
+    filter(!is.na(start) & !is.na(finish))
+  
+  # join the two df to create new df
+  my_data_longer <- bind_rows(my_data_1, my_data_2)
+  # #########################################################################
+
+  # create variable to show unfinished read attempts
+  my_notes_some <- my_data_longer %>% mutate(
+    unfinished = case_when(
+      (start <= a_date & is.na(finish)) ~ TRUE,
       TRUE ~ FALSE
     ),
-    unfinished_2 = case_when(
-      (start_2 <= a_date & is.na(finish_2)) ~ TRUE,
-      TRUE ~ FALSE
-    )
   ) %>%
+  # set today's date as the finish date if unfinished
   mutate(
-    finish_1 = case_when(
-      unfinished_1 ~ Sys.Date(),
-      TRUE ~ finish_1
-    ),
-    finish_2 = case_when(
-      unfinished_2 ~ Sys.Date(),
-      TRUE ~ finish_2
+    finish = case_when(
+      unfinished ~ Sys.Date(),
+      TRUE ~ finish
     )
   ) %>%
   
   # create check for relevance based on a_date; filter using it.
   mutate(
     relevant = case_when(
-      (start_1 <= a_date & finish_1 >= a_date) ~ TRUE,
-      (start_2 <= a_date & finish_2 >= a_date) ~ TRUE,
+      (start <= a_date & finish >= a_date) ~ TRUE,
       TRUE ~ FALSE
-    )
+      )
   ) %>%
   filter(relevant) %>%
   
   # add a duration (in days) of reads
     mutate(
-      duration_1 = finish_1 - start_1,
-      duration_2 = finish_2 - start_2
+      duration = finish - start,
     )
 
   return(my_notes_some)

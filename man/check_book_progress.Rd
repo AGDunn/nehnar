@@ -4,7 +4,7 @@
 \alias{check_book_progress}
 \title{Show Book Progress on a Particular Day}
 \usage{
-check_book_progress(my_data, a_date)
+check_book_progress(my_data, a_date, keep_all = FALSE)
 }
 \arguments{
 \item{my_data}{a dataframe of book notes.  Must include start and finish
@@ -12,6 +12,9 @@ dates for reading attempts.  No default.}
 
 \item{a_date}{a date or character object of the form "day month year".
 No default.}
+
+\item{keep_all}{a boolean; default FALSE.  If true, won't filter data based
+on a_date; it will also change a_date to today's date.}
 }
 \value{
 A data frame with one row per read attempt.

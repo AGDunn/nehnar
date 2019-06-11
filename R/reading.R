@@ -742,19 +742,26 @@ append_id <- function(my_df = NULL, my_id_col = NULL){
 #'   dates for reading attempts.  No default.
 #' @param a_date a date or character object of the form "day month year".  
 #'   No default.
+#' @param keep_all a boolean; default FALSE.  If true, won't filter data based
+#'   on a_date; it will also change a_date to today's date.
 #' @return A data frame with one row per read attempt.
 #' @export
-check_book_progress <- function(my_data, a_date){
+check_book_progress <- function(my_data, a_date, keep_all = FALSE){
 
-  # transform a character a_date input to a date if needed
-  if (is.character(a_date)){
+  # use today's date if keep_all TRUE.
+  if (keep_all) {
+    a_date <- Sys.Date()
+  }
+
+  # if date is a string, convert to a date object.
+  if (is.character(a_date)) {
     a_date <- dmy(a_date)
   }
   
   # turn df into read-attempt-per-row format ##################################
     my_data <- my_data %>%
       gather(starts_with("start_"), starts_with("finish_"),
-        key = date_type, value = a_date)
+        key = date_type, value = read_ends)
     
   # split into separate data frames for read_1 and read_2 #####################
   my_data_1 <- my_data %>%
@@ -773,7 +780,7 @@ check_book_progress <- function(my_data, a_date){
         str_detect(date_type, "finish_") ~ "finish"
       )
     ) %>%
-    spread(date_type, a_date) %>%
+    spread(date_type, read_ends) %>%
     filter(!(is.na(start) & is.na(finish)))
   
   my_data_2 <- my_data_2 %>%
@@ -783,15 +790,15 @@ check_book_progress <- function(my_data, a_date){
         str_detect(date_type, "finish_") ~ "finish"
       )
     ) %>%
-    spread(date_type, a_date) %>%
+    spread(date_type, read_ends) %>%
     filter(!(is.na(start) & is.na(finish)))
   
   # join the two df to create new df
   my_data_longer <- bind_rows(my_data_1, my_data_2)
-  # #########################################################################
+  # ###########################################################################
 
-  # create variable to show unfinished read attempts
-  my_notes_some <- my_data_longer %>%
+  # create variable to show unfinished read attempts ##########################
+  my_data_longer <- my_data_longer %>%
     mutate(
       unfinished = case_when(
         (start <= a_date & is.na(finish)) ~ TRUE,
@@ -804,23 +811,28 @@ check_book_progress <- function(my_data, a_date){
       unfinished ~ Sys.Date(),
       TRUE ~ finish
     )
-  ) %>%
+  ) 
   
-  # create check for relevance based on a_date; filter using it.
-  mutate(
-    relevant = case_when(
-      (start <= a_date & finish >= a_date) ~ TRUE,
-      TRUE ~ FALSE
-      )
-  ) %>%
-  filter(relevant) %>%
+  # create check for relevance based on a_date; filter using it ###############
+  if (!keep_all) {
+    my_data_longer <- my_data_longer %>%
+      mutate(
+        relevant = case_when(
+          (start <= a_date & finish >= a_date) ~ TRUE,
+          TRUE ~ FALSE
+          )
+      ) %>%
+      filter(relevant) %>%
+      select(-relevant)
+  }
   
   # add a duration (in days) of reads
+  my_data_longer <- my_data_longer %>%
     mutate(
       duration = finish - start,
     )
 
-  return(my_notes_some)
+  return(my_data_longer)
 }
 # #############################################################################
 
@@ -900,7 +912,7 @@ book_finish_ratios <- function(start_date = (Sys.Date() - 7),
   if (!is.Date(end_date)){
     end_date <- dmy(end_date)
   }
-  # ############################################################################
+  # ###########################################################################
 
 # ############################################################################
 # ZZZ better defaults would be
@@ -909,21 +921,20 @@ book_finish_ratios <- function(start_date = (Sys.Date() - 7),
 # to Sys.Date().
 # ############################################################################
 
-  # create vector of dates to check over #######################################
+  # create vector of dates to check over ######################################
     some_days <- seq.Date(
       from = start_date, to = end_date,
       by = 1
     )
-  # ############################################################################
-  
+  # ###########################################################################
     
-  # map book_finish_rate onto dates and notes ##################################
+  # map book_finish_rate onto dates and notes #################################
   holder <- pmap_dfr(list(some_days), book_finish_rate, my_notes)
-  # ############################################################################
+  # ###########################################################################
 
-  # form into tibble with the dates, return it #################################
+  # form into tibble with the dates, return it ################################
   books_by_day <- as_tibble(cbind(some_days, holder))
   return(books_by_day)
-  # ############################################################################
+  # ###########################################################################
 }
-# ###############################################################################
+# #############################################################################

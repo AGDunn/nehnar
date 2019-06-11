@@ -774,7 +774,7 @@ check_book_progress <- function(my_data, a_date){
       )
     ) %>%
     spread(date_type, a_date) %>%
-    filter(!is.na(start) & !is.na(finish))
+    filter(!(is.na(start) & is.na(finish)))
   
   my_data_2 <- my_data_2 %>%
     mutate(
@@ -784,18 +784,19 @@ check_book_progress <- function(my_data, a_date){
       )
     ) %>%
     spread(date_type, a_date) %>%
-    filter(!is.na(start) & !is.na(finish))
+    filter(!(is.na(start) & is.na(finish)))
   
   # join the two df to create new df
   my_data_longer <- bind_rows(my_data_1, my_data_2)
   # #########################################################################
 
   # create variable to show unfinished read attempts
-  my_notes_some <- my_data_longer %>% mutate(
-    unfinished = case_when(
-      (start <= a_date & is.na(finish)) ~ TRUE,
-      TRUE ~ FALSE
-    ),
+  my_notes_some <- my_data_longer %>%
+    mutate(
+      unfinished = case_when(
+        (start <= a_date & is.na(finish)) ~ TRUE,
+        TRUE ~ FALSE
+      ),
   ) %>%
   # set today's date as the finish date if unfinished
   mutate(

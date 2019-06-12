@@ -881,9 +881,9 @@ book_finish_rate <- function(target_date = Sys.Date(), my_notes = NULL){
   
     return(my_summary)
 }
-# ###############################################################################
+# #############################################################################
 
-# ###############################################################################
+# #############################################################################
 #' find the number of finished and unfinihsed book reads over sequence of dates
 #'
 #' Based on the start and finish dates in a book notes data frame, returns a
@@ -904,7 +904,7 @@ book_finish_ratios <- function(start_date = (Sys.Date() - 7),
                                  end_date = Sys.Date(),
                                  my_notes = NULL){
 
-  # convert string inputs to dmy() #############################################
+  # convert string inputs to dmy() ############################################
   if (!is.Date(start_date)){
     start_date <- dmy(start_date)
   }
@@ -912,7 +912,7 @@ book_finish_ratios <- function(start_date = (Sys.Date() - 7),
   if (!is.Date(end_date)){
     end_date <- dmy(end_date)
   }
-  # ###########################################################################
+  # ##########################################################################
 
 # ############################################################################
 # ZZZ better defaults would be

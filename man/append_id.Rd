@@ -4,14 +4,13 @@
 \alias{append_id}
 \title{Distinguish between Things Published in Same Year}
 \usage{
-append_id(my_df = NULL, my_id_col = NULL)
+append_id(my_df, my_id_col)
 }
 \arguments{
-\item{my_df}{a dataframe with an identifier that needs to be made unique.
-Default NULL.}
+\item{my_df}{a dataframe with an identifier that needs to be made unique.}
 
 \item{my_id_col}{a character column in that dataframe to be altered so that
-all values in it are unique.  Default NULL.}
+all values in it are unique.}
 }
 \value{
 a dataframe identical to the one supplied to the function but with

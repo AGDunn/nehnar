@@ -674,9 +674,8 @@ read_book_notes <- function(source_file = NULL,
 #' string is a year.
 #'
 #' @param my_df a dataframe with an identifier that needs to be made unique.
-#'   Default NULL.
 #' @param my_id_col a character column in that dataframe to be altered so that
-#'   all values in it are unique.  Default NULL.
+#'   all values in it are unique.
 #' @keywords data munging, ID variables, bibliography,
 #' @importFrom dplyr arrange
 #' @importFrom dplyr mutate
@@ -693,26 +692,70 @@ read_book_notes <- function(source_file = NULL,
 #'   appears twice in the original, there will now be a 'Smith 2010a' and a 
 #'   'Smith 2010b'.
 #' @export
-append_id <- function(my_df = NULL, my_id_col = NULL){
+append_id <- function(my_df, my_id_col){
+  # setup: initial values #####################################################
+  # quo() the column that's used
   quo_id <- enquo(my_id_col)
+  # add a blank to the start of the R builtin constant 'letters'
   for_dupes <- c("", letters)
+  # set the counter which controls the while() loop to 1.
+  current_pass <- 1
+  # ###########################################################################
   
+  # setup: the dataframe ######################################################
+  # copies the ID column into a new temporary column, then deletes original ID
+  # column and sorts on the new one.
   my_df <- my_df %>%
     arrange(!!quo_id) %>%
     mutate(temp_id = !!quo_id, dupe_seq = 0) %>%
-    select(-!!quo_id) %>%
-    mutate(dupe_seq = case_when(
-        temp_id == lead(temp_id, n = 1) ~ lag(dupe_seq) + 1,
-        TRUE ~ dupe_seq)
-    ) %>% 
-    mutate(dupe_seq = case_when(
-      temp_id == lag(temp_id, n = 1) ~ lag(dupe_seq) + 1,
-      TRUE ~ dupe_seq)
-    ) %>% 
-    mutate(temp_id = paste0(temp_id, for_dupes[dupe_seq + 1])
-    ) %>%
-    mutate(!!quo_id := temp_id) %>%
-    select(-dupe_seq, -temp_id)
+    select(-!!quo_id)
+
+  # determine how many copies there are of the most common value for the ID
+  # variable
+  max_passes <- max(table(my_df$temp_id))
+  # ###########################################################################
+
+# tag first row of each ID that's non-unique ##################################
+# finds the first instance of each duplicated ID value and sets the
+# corresponding dupe_seq to 1.  Otherwise doesn't change dupe_seq.
+my_df <- my_df %>%
+  mutate(
+    dupe_seq = case_when(
+      temp_id == lead(temp_id, n = 1) &
+        (temp_id != lag(temp_id, n = 1) | is.na(lag(temp_id, n = 1))) ~ 1,
+      TRUE ~ dupe_seq
+    )
+  )
+# ##############################################################################
+
+# add tags to duplicates that aren't tagged yet ###############################
+# checks current row ID matches previous row ID & that the previous row
+# dupe_seq was just changed (either by the dupe_seq = 1 part, or the previous
+# iteration of the while() loop.  Will run one less time than there are copies
+# of the most common ID value.
+while (current_pass < max_passes) {
+  my_df <- my_df %>%
+    mutate(
+      dupe_seq = case_when(
+        temp_id == lag(temp_id, n = 1) &
+          lag(dupe_seq, n = 1) == current_pass ~ current_pass + 1,
+        TRUE ~ dupe_seq
+      )
+  )
+
+  current_pass <- current_pass + 1
+}
+# #############################################################################
+
+# append letters ############################################################
+# based on dupe_seq, assigns a letter to the end of each instance of a 
+# non-unique ID value.
+my_df <- my_df %>% 
+mutate(temp_id = paste0(temp_id, for_dupes[dupe_seq + 1])
+) %>%
+mutate(!!quo_id := temp_id) %>%
+select(-dupe_seq, -temp_id)
+# ###########################################################################
 
   return(my_df)
 }

@@ -887,7 +887,7 @@ check_book_progress <- function(my_data, a_date, keep_all = FALSE){
 #' progress' (i.e. unfinished) on that date.
 #'
 #' @param target_date a date; default is Sys.Date()
-#' @param my_notes a book-notes dataframe; default NULL
+#' @param my_notes a dataframe of read attempts; default NULL
 #' @importFrom dplyr case_when
 #' @importFrom dplyr mutate
 #' @importFrom dplyr summarise
@@ -898,28 +898,19 @@ check_book_progress <- function(my_data, a_date, keep_all = FALSE){
 book_finish_rate <- function(target_date = Sys.Date(), my_notes = NULL){
   my_summary <- my_notes %>%
     mutate(
-      finished_1 = case_when(
-        finish_1 <= target_date ~ TRUE,
+      finished = case_when(
+        finish <= target_date ~ TRUE,
         TRUE ~ FALSE
       ),
-      finished_2 = case_when(
-        finish_2 <= target_date ~ TRUE,
+      unfinished = case_when(
+        start <= target_date &
+          (finish > target_date | unfinished) ~ TRUE,
         TRUE ~ FALSE
       ),
-      unfinished_1 = case_when(
-        start_1 <= target_date &
-          (finish_1 > target_date | is.na(finish_1)) ~ TRUE,
-        TRUE ~ FALSE
-      ),
-      unfinished_2 = case_when(
-        start_2 <= target_date & 
-          (finish_2 > target_date | is.na(finish_2)) ~ TRUE,
-        TRUE ~ FALSE
-      )
     ) %>%
     # sum the finished counts and the unfinished counts
-    summarise(total_finished = sum(finished_1, finished_2),
-      total_unfinished = sum(unfinished_1, unfinished_2)
+    summarise(total_finished = sum(finished),
+      total_unfinished = sum(unfinished)
     )
   
     return(my_summary)
@@ -927,7 +918,7 @@ book_finish_rate <- function(target_date = Sys.Date(), my_notes = NULL){
 # #############################################################################
 
 # #############################################################################
-#' find the number of finished and unfinihsed book reads over sequence of dates
+#' find the number of finished and unfinished book reads over sequence of dates
 #'
 #' Based on the start and finish dates in a book notes data frame, returns a
 #' new data frame showing the number of books finished by each date and the
@@ -956,13 +947,6 @@ book_finish_ratios <- function(start_date = (Sys.Date() - 7),
     end_date <- dmy(end_date)
   }
   # ##########################################################################
-
-# ############################################################################
-# ZZZ better defaults would be
-#   min: lowest date in the notes
-#   max: today
-# to Sys.Date().
-# ############################################################################
 
   # create vector of dates to check over ######################################
     some_days <- seq.Date(

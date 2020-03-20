@@ -4,9 +4,15 @@
 \alias{map_visited_regions}
 \title{Make a Map with Some Areas Obscured}
 \usage{
-map_visited_regions(visited_places = NULL, countries = "everywhere",
-  show_unvisited = FALSE, group_London = TRUE, add_legend = TRUE,
-  uk_countries = FALSE, just_London = FALSE)
+map_visited_regions(
+  visited_places = NULL,
+  countries = "everywhere",
+  show_unvisited = FALSE,
+  group_London = TRUE,
+  add_legend = TRUE,
+  uk_countries = FALSE,
+  just_London = FALSE
+)
 }
 \arguments{
 \item{visited_places}{a vector of ISO_3166 values (2-letter country code

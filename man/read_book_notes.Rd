@@ -4,8 +4,12 @@
 \alias{read_book_notes}
 \title{Read in My Book Notes}
 \usage{
-read_book_notes(source_file = NULL, remove_mess = TRUE,
-  keep_ugly_dates = FALSE, diagnose_speed = FALSE)
+read_book_notes(
+  source_file = NULL,
+  remove_mess = TRUE,
+  keep_ugly_dates = FALSE,
+  diagnose_speed = FALSE
+)
 }
 \arguments{
 \item{source_file}{path to the plain-text file to pull book notes from.

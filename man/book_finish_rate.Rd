@@ -9,7 +9,7 @@ book_finish_rate(target_date = Sys.Date(), my_notes = NULL)
 \arguments{
 \item{target_date}{a date; default is Sys.Date()}
 
-\item{my_notes}{a book-notes dataframe; default NULL}
+\item{my_notes}{a dataframe of read attempts; default NULL}
 }
 \value{
 a one-row tibble of two columns: the number of books finished on

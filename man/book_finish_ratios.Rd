@@ -2,10 +2,13 @@
 % Please edit documentation in R/reading.R
 \name{book_finish_ratios}
 \alias{book_finish_ratios}
-\title{find the number of finished and unfinihsed book reads over sequence of dates}
+\title{find the number of finished and unfinished book reads over sequence of dates}
 \usage{
-book_finish_ratios(start_date = (Sys.Date() - 7),
-  end_date = Sys.Date(), my_notes = NULL)
+book_finish_ratios(
+  start_date = (Sys.Date() - 7),
+  end_date = Sys.Date(),
+  my_notes = NULL
+)
 }
 \arguments{
 \item{start_date}{a date or a string that can be parsed by lubridate's

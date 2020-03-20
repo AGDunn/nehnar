@@ -4,8 +4,12 @@
 \alias{add_pos_label}
 \title{Label a Row Based on Label Above or Label Below}
 \usage{
-add_pos_label(my_data = NULL, this_label = NULL,
-  label_checked = NULL, check_above = TRUE)
+add_pos_label(
+  my_data = NULL,
+  this_label = NULL,
+  label_checked = NULL,
+  check_above = TRUE
+)
 }
 \arguments{
 \item{my_data}{a data frame, which needs to include a variable called

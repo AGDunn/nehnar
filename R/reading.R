@@ -899,7 +899,7 @@ book_finish_rate <- function(target_date = Sys.Date(), my_notes = NULL){
   my_summary <- my_notes %>%
     mutate(
       finished = case_when(
-        finish <= target_date ~ TRUE,
+        (finish <= target_date & !unfinished) ~ TRUE,
         TRUE ~ FALSE
       ),
       unfinished = case_when(

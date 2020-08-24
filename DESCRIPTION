@@ -7,8 +7,8 @@ Authors@R:
            role = c("aut", "cre"),
            email = "agd1983@gmail.com")
 Description: These functions are used by us for a few different
-    things.  To begin with, it's just functions related to making maps of
-    places we visited.
+    things.  There are functions related to doing maps of places we've been
+    and some that are related to keeping track of my reading.
 License: GPL-3
 Imports: 
     dplyr,
@@ -27,4 +27,4 @@ Imports:
     tidyr
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.1

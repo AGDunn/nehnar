@@ -895,6 +895,7 @@ check_book_progress <- function(my_data, a_date, keep_all = FALSE){
 #' @keywords book notes, summary
 #' @return a one-row tibble of two columns: the number of books finished on
 #'   target_date, then the number unfinished on target_date.
+#' @export
 book_finish_rate <- function(target_date = Sys.Date(), my_notes = NULL){
   my_summary <- my_notes %>%
     mutate(
@@ -930,6 +931,7 @@ book_finish_rate <- function(target_date = Sys.Date(), my_notes = NULL){
 #'   `dmy()`.  Default Sys.Date().
 #' @param my_notes a book notes dataframe; default NULL
 #' @importFrom lubridate dmy
+#' @importFrom lubridate is.Date
 #' @importFrom purrr pmap_dfr
 #' @importFrom tibble as_tibble
 #' @keywords book notes, summary

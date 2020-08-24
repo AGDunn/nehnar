@@ -7,8 +7,8 @@
 \title{nehnar: a Bag of Functions We Use}
 \description{
 These functions are used by us for a few different
-    things.  To begin with, it's just functions related to making maps of
-    places we visited.
+    things.  There are functions related to doing maps of places we've been
+    and some that are related to keeping track of my reading.
 }
 \author{
 \strong{Maintainer}: Adam George Dunn \email{agd1983@gmail.com}

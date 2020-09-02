@@ -24,14 +24,13 @@ is properly tidied.  Default TRUE.}
 include the character version of the dates as well as the cleaned-up
 date class columns.  Default FALSE.}
 
-\item{diagnose_speed}{a boolean; if TRUE, returns a self-diagnosis instead
-of the notes on books.  Default FALSE.}
+\item{diagnose_speed}{a boolean; if TRUE, prints the time taken by the core
+(slow) loop in the function.  Default FALSE.}
 }
 \value{
 a data frame with bibliographic details of books as separate
   columns.  Also includes start and end dates of reading each book and
-  keywords I've noted for each.  If asked to, will return a diagnosis of the
-  function speed instead of the data frame.
+  keywords I've noted for each.
 }
 \description{
 Reads in a plain text file of notes on books and returns a tidy data frame.
@@ -39,8 +38,7 @@ Reads in a plain text file of notes on books and returns a tidy data frame.
 \details{
 Designed for my own format of notes on books, including when I read them.
 Won't work on anything that doesn't match that formatting.  Creates
-tolerably pretty variables.  If asked to, will return a report of how long
-each step of the function took instead of returning the notes.
+tolerably pretty variables.
 }
 \keyword{data}
 \keyword{idiosyncratic}

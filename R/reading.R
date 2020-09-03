@@ -241,7 +241,6 @@ read_book_notes <- function(source_file = NULL,
   # ###########################################################################
 
   # add a per-item index column ###############################################
-  # not sure how useful this is.
   my_reading$item <- rep(0, length(my_reading$label))
   item_counter <- 0
   
@@ -292,8 +291,7 @@ read_book_notes <- function(source_file = NULL,
   # which would risk a silent error if a book were later started for a third
   # time.
   my_reading <- my_reading %>%
-    spread(label, raw_data) %>%
-    select(-item)
+    spread(label, raw_data)
   # once it's in a more standard format, Tidyverse tools for working with
   # columns can be used.  Wickham has created pivot() as a successor function.
   # ###########################################################################
@@ -385,6 +383,11 @@ read_book_notes <- function(source_file = NULL,
       author = str_to_title(author),
       title = str_to_title(title)
   )
+  # ###########################################################################
+
+  # remove author_year_title from finalised tibble ############################
+  my_reading <- my_reading %>%
+    select(-author_year_title)
   # ###########################################################################
 
   # produce outputs ###########################################################

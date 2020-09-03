@@ -525,17 +525,10 @@ select(-dupe_seq, -temp_id)
 #' @param my_data a dataframe of book notes.  Must include start and finish
 #'   dates for reading attempts.  No default.
 #' @param a_date a date or character object of the form "day month year".  
-#'   No default.
-#' @param keep_all a boolean; default FALSE.  If true, won't filter data based
-#'   on a_date; it will also change a_date to today's date.
+#'   default today's date.
 #' @return A data frame with one row per read attempt.
 #' @export
-check_book_progress <- function(my_data, a_date, keep_all = FALSE){
-
-  # use today's date if keep_all TRUE.
-  if (keep_all) {
-    a_date <- Sys.Date()
-  }
+check_book_progress <- function(my_data, a_date = Sys.Date()){
 
   # if date is a string, convert to a date object.
   if (is.character(a_date)) {
@@ -598,17 +591,15 @@ check_book_progress <- function(my_data, a_date, keep_all = FALSE){
   ) 
   
   # create check for relevance based on a_date; filter using it ###############
-  if (!keep_all) {
-    my_data_longer <- my_data_longer %>%
-      mutate(
-        relevant = case_when(
-          (start <= a_date & finish >= a_date) ~ TRUE,
-          TRUE ~ FALSE
-          )
-      ) %>%
-      filter(relevant) %>%
-      select(-relevant)
-  }
+  my_data_longer <- my_data_longer %>%
+    mutate(
+      relevant = case_when(
+        (start <= a_date & finish >= a_date) ~ TRUE,
+        TRUE ~ FALSE
+        )
+    ) %>%
+    filter(relevant) %>%
+    select(-relevant)
   
   # add a duration (in days) of reads
   my_data_longer <- my_data_longer %>%

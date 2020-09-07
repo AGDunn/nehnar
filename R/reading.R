@@ -74,6 +74,7 @@ add_pos_label <- function(my_data = NULL, this_label = NULL,
 #' @importFrom dplyr lag
 #' @importFrom dplyr lead
 #' @importFrom dplyr mutate
+#' @importFrom dplyr mutate_at
 #' @importFrom dplyr select
 #' @importFrom lubridate dmy
 #' @importFrom magrittr %>%
@@ -106,9 +107,9 @@ read_book_notes <- function(source_file = NULL,
   }
   # ###########################################################################
 
-# ZZZ todo block ##############################################################
-# add some reading notes data for illustrative purposes.
-# #############################################################################
+  # ZZZ todo block ############################################################
+  # add some reading notes data for illustrative purposes.
+  # ###########################################################################
 
   # ###########################################################################
   # read in the raw data as a vector, with each line a single entry in the
@@ -118,13 +119,14 @@ read_book_notes <- function(source_file = NULL,
 
   my_reading <- tibble(
     label = rep("nope", len_read),
-    raw_data = read_lines(source_file)
+    raw_data = read_lines(source_file),
+    item = rep(0, len_read)
   )
 
   # add blank line as the first line so the function can find the first
   # author_year_title line.
   my_reading <- my_reading %>%
-    add_row(label = "nope", raw_data = "", .before = 1)
+    add_row(label = "nope", raw_data = "", item = 0, .before = 1)
   # ########################################################################### 
 
   # add labels based on contents of raw_data ################################## 
@@ -143,6 +145,22 @@ read_book_notes <- function(source_file = NULL,
     )
   # ###########################################################################
   
+  # remove leading text from all start and finish data #######################
+  # should remove the text before the date as well as any amount of leading
+  # white space.
+  my_reading <- my_reading %>%
+    mutate(raw_data = case_when(
+               str_detect(label, "start_") ~ str_remove(raw_data, "start: "),
+               str_detect(label, "finish_") ~ str_remove(raw_data, "finish: "),
+               TRUE ~ raw_data)
+      ) %>%
+    mutate(raw_data = case_when(
+               str_detect(label, "start_") ~ str_trim(raw_data),
+               str_detect(label, "finish_") ~ str_trim(raw_data),
+               TRUE ~ raw_data)
+    )
+  # ###########################################################################
+
   # ###########################################################################
 
   # halt function if there are two blank lines in a row #######################
@@ -275,8 +293,8 @@ read_book_notes <- function(source_file = NULL,
   if (diagnose_speed) {
     end_of_joining <- Sys.time()
   }
-# ZZZ works but produces an error message; using try() lets the rest of the
-# script execute.  Is there a way to suppress that error message?
+  # ZZZ works but produces an error message; using try() lets the rest of the
+  # script execute.  Is there a way to suppress that error message?
   # ###########################################################################
 
   # remove blank lines and put columns in sensible order ######################
@@ -308,34 +326,21 @@ read_book_notes <- function(source_file = NULL,
       title = str_squish(
         str_split_fixed(author_year_title, "\\d\\d\\d\\d", n = 2)[, 2])
     )
-# ZZZ this won't work on items with no publication date; fix with case_when()?
+  # ZZZ this won't work on items with no publication date; fix with case_when()?
   # ###########################################################################
 
-  # clean the start_ and finish_ variables into dates #########################
-  # tried to be clever earlier with getting it to dynamically go through column
-  # names.  If more start or finish lines are added for any books, this will
-  # need updating.  This also probably suppresses incomplete dates, which isn't
-  # a great outcome.
-  quiet_dmy <- quietly(dmy)
+  # turn the start_ and finish_ variables into dates ##########################
+  # Should now work for all start and finish variables.  Some of the parsing
+  # errors will be due to bad data.
+  # ZZZ is there a way to directly capture the parsing errors as a printed
+  # output?
+  # ZZZ is it worth making these quiet using quiet_dmy <- quietly(dmy)?
+  # ZZZ these seem to be the same issue.  Make a diagnostics v quietly option
+  # part of the existing diagnostics option.  Might need to use possibly()
+  # instead.
   my_reading <- my_reading %>%
-    mutate(
-      start_1 = str_remove(start_1, "start:"),
-      start_2 = str_remove(start_2, "start:"),
-      finish_1 = str_remove(finish_1, "finish:"),
-      finish_2 = str_remove(finish_2, "finish:")
-    ) %>%
-    mutate(
-      start_1 = str_trim(start_1),
-      start_2 = str_trim(start_2),
-      finish_1 = str_trim(finish_1),
-      finish_2 = str_trim(finish_2)
-    ) %>%
-    mutate(
-      start_1 = quiet_dmy(start_1)$result,
-      start_2 = quiet_dmy(start_2)$result,
-      finish_1 = quiet_dmy(finish_1)$result,
-      finish_2 = quiet_dmy(finish_2)$result
-    )
+    mutate_at(vars(matches("start_")), dmy) %>%
+    mutate_at(vars(matches("finish_")), dmy)
   # ###########################################################################
 
   # split out place and publisher #############################################

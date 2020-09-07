@@ -10,11 +10,12 @@ check_book_progress(my_data, a_date = Sys.Date())
 \item{my_data}{a dataframe of book notes.  Must include start and finish
 dates for reading attempts.  No default.}
 
-\item{a_date}{a date or character object of the form "day month year".
+\item{a_date}{a date or character object of the form 'day month year'.
 default today's date.}
 }
 \value{
-A data frame with one row per read attempt.
+A data frame with one row per read attempt.  Must include a numeric
+  column 'item' with a unique entry per book.  Default NULL.
 }
 \description{
 Shows book completion stats on a date specified by user.

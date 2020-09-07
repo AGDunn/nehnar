@@ -529,90 +529,71 @@ select(-dupe_seq, -temp_id)
 #' @importFrom tidyr spread
 #' @param my_data a dataframe of book notes.  Must include start and finish
 #'   dates for reading attempts.  No default.
-#' @param a_date a date or character object of the form "day month year".  
+#' @param a_date a date or character object of the form 'day month year'.  
 #'   default today's date.
-#' @return A data frame with one row per read attempt.
+#' @return A data frame with one row per read attempt.  Must include a numeric
+#'   column 'item' with a unique entry per book.  Default NULL.
 #' @export
 check_book_progress <- function(my_data, a_date = Sys.Date()){
-
-  # if date is a string, convert to a date object.
-  if (is.character(a_date)) {
-    a_date <- dmy(a_date)
-  }
-  
-  # turn df into read-attempt-per-row format ##################################
-    my_data <- my_data %>%
-      gather(starts_with("start_"), starts_with("finish_"),
-        key = date_type, value = read_ends)
-    
-  # split into separate data frames for read_1 and read_2 #####################
-  my_data_1 <- my_data %>%
-    filter(date_type == "start_1" | date_type == "finish_1")
-    
-  my_data_2 <- my_data %>%
-    filter(date_type == "start_2" | date_type == "finish_2")
-  
-  # both df get new columns: start and finish #################################
-  # whether it's read_1 or read_2 is no longer recorded
-  # any which have NA for both start and finish are removed
-  my_data_1 <- my_data_1 %>%
-    mutate( 
-      date_type = case_when(
-        str_detect(date_type, "start_") ~ "start",
-        str_detect(date_type, "finish_") ~ "finish"
-      )
+  # create reads_without_books tibble #########################################
+  # Make a tibble that's tidy per read attempt and has no book info other
+  # than item number.
+  reads_without_books <- my_data %>%
+    select(item, starts_with("start") | starts_with("finish")) %>%
+    # Pivot to make it one end (a start or a finish) of a read attempt per row.
+    pivot_longer(-item) %>%
+    # str_extract() to make read attempt ID number from read attempts with any
+    # number of digits.
+    mutate(read_attempt = str_extract(name, "[0-9].*")) %>%
+    # Remove read attempt id from start and finish.
+    mutate(name = case_when(str_detect(name, "start_") ~ "start",
+                            str_detect(name, "finish_") ~ "finish")
     ) %>%
-    spread(date_type, read_ends) %>%
-    filter(!(is.na(start) & is.na(finish)))
+    # Pivot (again) to make it tidy per read attempt.
+    pivot_wider()
+  # ###########################################################################
   
-  my_data_2 <- my_data_2 %>%
-    mutate(
-      date_type = case_when(
-        str_detect(date_type, "start_") ~ "start",
-        str_detect(date_type, "finish_") ~ "finish"
-      )
+  # create books_without_reads tibble #########################################
+  # Make a tibble that's just the book details and has no start or finish.
+  books_without_reads <- my_data %>%
+    select(- starts_with("start"), - starts_with("finish"))
+  # ############################################################################
+  
+  # join reads_without books to books_without_reads ############################
+  # Joining the two gives several rows of non-existent reads with NA start and
+  # NA end.  These are removed after joining.
+  tidy_per_read <- right_join(books_without_reads, reads_without_books) %>%
+    filter(!is.na(start) | !is.na(finish))
+  # ###########################################################################
+  
+  # filter out read attempts from after a_date ################################
+  # ZZZ remove the conditional on finish; it's only here to make it safe to
+  # test on the not-great data. 
+  tidy_per_read <- tidy_per_read %>%
+    filter(start <= a_date)
+  # ###########################################################################
+  
+  # create finished and unfinished variables ##################################
+  # unfinished and finished variables created by comparing a_date to the
+  # finish date of the read.
+  tidy_per_read <- tidy_per_read %>%
+    mutate(unfinished = finish > a_date | is.na(finish)) %>%
+    mutate(finished = !unfinished)
+  # ###########################################################################
+  
+  # determine duration of read attempt in days ################################
+  # Assign a fake finish date of today to the unfinished reads, then determine
+  # duration of each read in days.
+  tidy_per_read <- tidy_per_read %>%
+    mutate(finish = case_when(unfinished ~ Sys.Date(),
+                    TRUE ~ finish)
     ) %>%
-    spread(date_type, read_ends) %>%
-    filter(!(is.na(start) & is.na(finish)))
-  
-  # join the two df to create new df
-  my_data_longer <- bind_rows(my_data_1, my_data_2)
+    mutate(duration = finish - start)
   # ###########################################################################
 
-  # create variable to show unfinished read attempts ##########################
-  my_data_longer <- my_data_longer %>%
-    mutate(
-      unfinished = case_when(
-        (start <= a_date & is.na(finish)) ~ TRUE,
-        TRUE ~ FALSE
-      ),
-  ) %>%
-  # set today's date as the finish date if unfinished
-  mutate(
-    finish = case_when(
-      unfinished ~ Sys.Date(),
-      TRUE ~ finish
-    )
-  ) 
-  
-  # create check for relevance based on a_date; filter using it ###############
-  my_data_longer <- my_data_longer %>%
-    mutate(
-      relevant = case_when(
-        (start <= a_date & finish >= a_date) ~ TRUE,
-        TRUE ~ FALSE
-        )
-    ) %>%
-    filter(relevant) %>%
-    select(-relevant)
-  
-  # add a duration (in days) of reads
-  my_data_longer <- my_data_longer %>%
-    mutate(
-      duration = finish - start,
-    )
-
-  return(my_data_longer)
+  # output of function: tibble tidy per read attempt ##########################
+  return(tidy_per_read)
+  # ###########################################################################
 }
 # #############################################################################
 

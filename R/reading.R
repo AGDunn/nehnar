@@ -521,6 +521,7 @@ select(-dupe_seq, -temp_id)
 #' @importFrom dplyr case_when
 #' @importFrom dplyr filter
 #' @importFrom tidyr gather
+#' @importFrom tidyr pivot_longer
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
 #' @importFrom dplyr starts_with

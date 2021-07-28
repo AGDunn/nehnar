@@ -51,18 +51,18 @@ map_visited_regions <- function(visited_places = NULL,
                                 just_London = FALSE){
 
 # ZZZ: stuff to do block ------------------------------------------------------
-  # add warnings block for silly argument values
-  # include ref to https://en.wikipedia.org/wiki/ISO_3166-2
-  # add something to tie presence/absence of borders to uk_countries?
-  # the show_unvisited variable should influence plot title.
-  # if some of the 2-letter codes aren't in the data it will still run without
-  #   complaint as long as at least one is.
-  # add method to auto-choose countries if countries = NULL.
-  # add option to use actual country names instead of 2-letter ISO codes.
-  #   e.g. difference between `country' and `geounit' args in ne_states() is
-  #   the former will give you all the colonies but the latter just mainland
-  #   France.
-  # add language-of-labels choice?
+# add warnings block for silly argument values
+# include ref to https://en.wikipedia.org/wiki/ISO_3166-2
+# add something to tie presence/absence of borders to uk_countries?
+# the show_unvisited variable should influence plot title.
+# if some of the 2-letter codes aren't in the data it will still run without
+#   complaint as long as at least one is.
+# add method to auto-choose countries if countries = NULL.
+# add option to use actual country names instead of 2-letter ISO codes.
+#   e.g. difference between `country' and `geounit' args in ne_states() is
+#   the former will give you all the colonies but the latter just mainland
+#   France.
+# add language-of-labels choice?
 # -----------------------------------------------------------------------------
 
   # convert ISO column from factor to character if necessary

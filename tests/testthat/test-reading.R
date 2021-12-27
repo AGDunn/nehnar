@@ -11,22 +11,27 @@ test_that("multiplication works", {
 
 # Tests for get_page_count() --------------------------------------------------
 test_that("well-ordered page counts are found", {
-  # one each for start,
-  # middle
-  # and end line of notes
+  # one each for start: Dune
+  # middle: Infinite Jest
+  # and end line of notes: Beowulf
+})
+
+test_that("multiple spaces don't prevent a page count", {
+  # use Knausgaard death/family
 })
 
 test_that("misplaced page counts make numerical NAs", {
-  # pp not at start of a line ~ NA
-  # pp not at end of a line ~ NA
+  # pp not at start of a line ~ NA: use K-gaard boyhood island
+  # pp not at end of a line ~ NA: use K-gaard man in love
 })
+
+test_that("missing information makes numerical NAs", {
+  # no number: use Murakami birthday stories
+  # no page count text or number: owl babies
+  # no notes at all: use Lovecraft collection
 
 test_that("items with duplicated page counts make numerical NAs", {
-})
-
-test_that("badly formatted page counts make numerical NAs", {
-  # capitalisation: "Page count"
-  # missing the colon
-  # missing the number itself
+  # duplicated page count: use Red Pill
+  # this one probably wants to have an informative output
 })
 # -----------------------------------------------------------------------------

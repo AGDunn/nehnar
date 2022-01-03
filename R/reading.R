@@ -686,3 +686,49 @@ book_finish_ratios <- function(start_date = (Sys.Date() - 7),
   # ###########################################################################
 }
 # #############################################################################
+
+# #############################################################################
+#' get the page count for a book from notes on it
+#' 
+#' ZZZ block describe function
+#' 
+#' ZZZ big block describes function
+#'
+#' @param one at a time for inputs
+#' @keywords book notes, page count
+#' @importFrom stringr str_count
+#' @importFrom stringr str_extract
+#' @return describe the function's output
+#' @export
+get_page_count <- function(source_note = NULL){
+  # Define the desired string, which is "page count: [:digit:]+" on a line in
+  # the notes on its own.
+  target_string <- "page count:[:blank:]+[:digit:]+"
+
+  # Check if the notes looked at are just an NA; if so then return an integer
+  # NA.
+  if (is.na(source_note)) {
+    return(as.integer(NA))
+  }
+
+  # Check how many times the target string appears in the notes for the book.
+  # Anything other than 1 appearance is bad, so should return a numerical NA.
+  targets_found <- str_count(source_note, target_string)
+  if (targets_found == 0) {
+    return(as.integer(NA))
+  } else if (targets_found > 1) {
+    return(as.integer(NA))
+  }
+
+  # Core loop: get page count from well-formatted notes. ----------------------
+  # Extract the target string.
+  extracted_string <- str_extract(source_note, target_string)
+
+  # Extract the page count itself from the target string.
+  page_count <- as.integer(str_extract(extracted_string, "[:digit:]+"))
+  # ---------------------------------------------------------------------------
+
+  # Return a page count value, or an NA if an error found.
+  return(page_count)
+}
+# #############################################################################
